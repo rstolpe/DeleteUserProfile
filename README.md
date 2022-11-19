@@ -21,7 +21,8 @@ Install-Module -Name DeleteUserProfiles
 ```
 
 # Example
-## Get-UserProfiles from localhost / local machine
+## Get-UserProfiles
+### Return all user profiles from the localhost / machine
 ```
 Get-UserProfiles
 ```
@@ -32,7 +33,7 @@ Get-UserProfiles -ExcludedProfiles @("Frank", "rstolpe")
 ```
 This will show all of the user profiles stored on the local machine except user profiles that are named Frank and rstolpe
 
-## Get-UserProfiles from remote computer
+### Return all user profiles from remote machine
 ```
 Get-UserProfiles -ComputerName "Win11-Test"
 ```
