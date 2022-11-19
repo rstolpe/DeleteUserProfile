@@ -45,7 +45,7 @@
     Copyright         = '(c) Robin Stolpe. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description       = ''
+    Description       = 'Delete Windows user profiles that are saved on local or remote computers, you can also return all of the user profiles that are saved on the local or remote computer'
 
     # Minimum version of the PowerShell engine required by this module
     # PowerShellVersion = ''
