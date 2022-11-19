@@ -1,6 +1,6 @@
 # DeleteUserProfiles
 This module will let you show all of the user profiles that are stored on a local or remote computer, you can also delete one specific user profile or all of them.   
-### This script will do the following
+### This module will do the following
 - Show all of the local user profiles
 - Show all of the user profiles from a remote computer
 - Delete one specific user profile or all of the user profiles from a local computer
@@ -43,3 +43,5 @@ This will return all of the user profiles stored on the remote computer "Win11-t
 Get-UserProfiles -ComputerName "Win11-Test" -ExcludedProfiles @("Frank", "rstolpe")
 ```
 This will return all of the user profiles stored on the remote computer "Win11-Test" except user profiles that are named Frank and rstolpe
+
+## Remove-UserProfile
