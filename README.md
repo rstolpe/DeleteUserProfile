@@ -1,16 +1,17 @@
 # DeleteUserProfiles
-This module will let you show all of the user profiles that are stored on a local or remote computer, you can also delete one specific user profile or all of them.   
+This module will let you show all of the user profiles that are saved on a local or remote computer, you can also delete one specific user profile or all of the profiles.  
+You can also return the user profiles from multiple computers at the same time.  
+The special windows profiles are excluded.
 ### This module will do the following
-- Show all of the local user profiles
-- Show all of the user profiles from a remote computer
-- Delete one specific user profile or all of the user profiles from a local computer
-- Delete one specific user profile or all of the user profiles from a remote computer
+- Return all of the user profiles from a remote or local computer
+- Delete one specific user profile or all of the user profiles from a local or remote computer
 - Delete all user profiles from both local and remote computer
 - You can exclude user profiles to show
 - You can exclude user profile to be deleted
-- If the user profile are loaded it will not get deleted  
+- If the user profile are loaded it will not get deleted
+- The special windows profiles are excluded
   
-If you use this function on a remote computer you need to make sure that you have [WinRM](https://github.com/rstolpe/Guides/blob/main/Windows/WinRM_GPO.md) activated.
+If you use this module on a remote computer you need to make sure that you have [WinRM](https://github.com/rstolpe/Guides/blob/main/Windows/WinRM_GPO.md) activated.
 
 ### Links
 - [YouTube video](https://youtube.com/shorts/SPPSHiMjVmA?feature=share)
@@ -22,26 +23,32 @@ Install-Module -Name DeleteUserProfiles
 
 # Example
 ## Get-UserProfiles
-### Return all user profiles from the localhost / machine
+If you want to use this on a remote computer just add the parameter -ComputerName <COMPUTERNAME> in the commands below.  
+  
 ```
 Get-UserProfiles
 ```
-Returns all user profiles that are stored on the local computer
+Return all user profiles that are saved on the local computer
 
 ```
 Get-UserProfiles -ExcludedProfiles @("Frank", "rstolpe")
 ```
-This will show all of the user profiles stored on the local machine except user profiles that are named Frank and rstolpe
-
-### Return all user profiles from remote machine
-```
-Get-UserProfiles -ComputerName "Win11-Test"
-```
-This will return all of the user profiles stored on the remote computer "Win11-test"
-
-```
-Get-UserProfiles -ComputerName "Win11-Test" -ExcludedProfiles @("Frank", "rstolpe")
-```
-This will return all of the user profiles stored on the remote computer "Win11-Test" except user profiles that are named Frank and rstolpe
+This will return all of the user profiles saved on the local machine except user profiles that are named Frank and rstolpe
 
 ## Remove-UserProfile
+If you want to use this on a remote computer just add the parameter -ComputerName <COMPUTERNAME> in the commands below.  
+  
+```
+Remove-UserProfile -DeleteAll
+```
+This will delete all of the user profiles from the localhost / computer your running the module from.
+
+```
+Remove-UserProfile -ExcludedProfiles @("User1", "User2") -DeleteAll
+```
+This will delete all of the user profiles except user profile User1 and User2 on the local computer
+
+```
+Remove-UserProfile -ProfileToDelete @("User1", "User2")
+```
+This will delete only user profile "User1" and "User2" from the local computer where you run the script from.

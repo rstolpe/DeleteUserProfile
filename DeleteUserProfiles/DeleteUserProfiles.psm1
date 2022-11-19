@@ -16,36 +16,36 @@
 Function Get-UserProfiles {
     <#
         .SYNOPSIS
-        Shows all user profiles that are stored on a computer
+        Return all user profiles that are saved on a computer
 
         .DESCRIPTION
-        Shows all user profiles that are stored on a local or remote computer and you can also delete one or all of the user profiles, the special windows profiles are excluded.
+        Return all user profiles that are saved on a local or remote computer and you can also delete one or all of the user profiles, the special windows profiles are excluded.
         You can also show all user profiles from multiple computers at the same time.
 
-        .PARAMETER Computer
+        .PARAMETER ComputerName
         The name of the remote computer you want to display all of the user profiles from. If you want to use it on a local computer you don't need to fill this one out.
 
         .PARAMETER ExcludedProfiles
         All of the usernames you write here will be excluded from the script and they will not show up, it's a array so you can add multiple users like @("User1", "User2")
 
         .EXAMPLE
-        # This will show all of the user profiles stored on the local machine
+        # This will return all of the user profiles saved on the local machine
         Get-UserProfiles
 
         .EXAMPLE
-        # This will show all of the user profiles stored on the local machine except user profiles that are named Frank and rstolpe
+        # This will return all of the user profiles saved on the local machine except user profiles that are named Frank and rstolpe
         Get-UserProfiles -ExcludedProfiles @("Frank", "rstolpe")
 
         .EXAMPLE
-        # This will show all of the user profiles stored on the remote computer "Win11-test"
+        # This will return all of the user profiles saved on the remote computer "Win11-test"
         Get-UserProfiles -ComputerName "Win11-Test"
 
         .EXAMPLE
-        # This will show all of the user profiles stored on the remote computers Win11-Test and Win10
+        # This will return all of the user profiles saved on the remote computers Win11-Test and Win10
         Get-UserProfiles -ComputerName "Win11-Test, Win10"
 
         .EXAMPLE
-        # This will show all of the user profiles stored on the remote computer "Win11-Test" except user profiles that are named Frank and rstolpe
+        # This will return all of the user profiles saved on the remote computer "Win11-Test" except user profiles that are named Frank and rstolpe
         Get-UserProfiles -ComputerName "Win11-Test" -ExcludedProfiles @("Frank", "rstolpe")
 
         .NOTES
@@ -62,7 +62,7 @@ Function Get-UserProfiles {
         [array]$ExcludedProfiles
     )
     foreach ($Computer in $ComputerName.Split(",").Trim()) {
-        Write-Host "`n== All profiles on $($Computer ) ==`n"
+        Write-Host "`n== All profiles on $($Computer) ==`n"
         try {
             Get-CimInstance -ComputerName $Computer -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Foreach-Object {
                 if (-Not ($_.LocalPath.split('\')[-1] -in $ExcludedProfiles)) {
@@ -101,7 +101,7 @@ Function Remove-UserProfile {
         If you want to delete all of the user profiles on the local or remote computer you can set this to $True or $False
 
         .EXAMPLE
-        # This will remove all of the user profiles from the local computer your running the script from.
+        # This will delete all of the user profiles from the local computer your running the script from.
         Remove-UserProfile -DeleteAll
 
         .EXAMPLE
