@@ -14,3 +14,31 @@ If you use this function on a remote computer you need to make sure that you hav
 
 ### Links
 - [YouTube video](https://youtube.com/shorts/SPPSHiMjVmA?feature=share)
+
+# Install
+```
+Install-Module -Name DeleteUserProfiles
+```
+
+# Example
+## Get-UserProfiles from localhost / local machine
+```
+Get-UserProfiles
+```
+Returns all user profiles that are stored on the local computer
+
+```
+Get-UserProfiles -ExcludedProfiles @("Frank", "rstolpe")
+```
+This will show all of the user profiles stored on the local machine except user profiles that are named Frank and rstolpe
+
+## Get-UserProfiles from remote computer
+```
+Get-UserProfiles -ComputerName "Win11-Test"
+```
+This will return all of the user profiles stored on the remote computer "Win11-test"
+
+```
+Get-UserProfiles -ComputerName "Win11-Test" -ExcludedProfiles @("Frank", "rstolpe")
+```
+This will return all of the user profiles stored on the remote computer "Win11-Test" except user profiles that are named Frank and rstolpe
