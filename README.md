@@ -23,7 +23,7 @@ Install-Module -Name DeleteUserProfiles
 
 # Example
 ## Get-UserProfiles
-If you want to use this on a remote computer just add the parameter -ComputerName <COMPUTERNAME> in the commands below.  
+If you want to use this on a remote computer just add the parameter ```-ComputerName <COMPUTERNAME>``` in the commands below.  
   
 ```
 Get-UserProfiles
@@ -35,8 +35,13 @@ Get-UserProfiles -ExcludedProfiles @("Frank", "rstolpe")
 ```
 This will return all of the user profiles saved on the local machine except user profiles that are named Frank and rstolpe
 
+```
+Get-UserProfiles -ComputerName "Win11-Test, Win10"
+```
+This will return all of the user profiles saved on the remote computers named Win11-Test and Win10
+
 ## Remove-UserProfile
-If you want to use this on a remote computer just add the parameter -ComputerName <COMPUTERNAME> in the commands below.  
+If you want to use this on a remote computer just add the parameter ```-ComputerName <COMPUTERNAME>``` in the commands below.  
   
 ```
 Remove-UserProfile -DeleteAll

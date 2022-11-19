@@ -41,7 +41,7 @@ Function Get-UserProfiles {
         Get-UserProfiles -ComputerName "Win11-Test"
 
         .EXAMPLE
-        # This will return all of the user profiles saved on the remote computers Win11-Test and Win10
+        # This will return all of the user profiles saved on the remote computers named Win11-Test and Win10
         Get-UserProfiles -ComputerName "Win11-Test, Win10"
 
         .EXAMPLE
