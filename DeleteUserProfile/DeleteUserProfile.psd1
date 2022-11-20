@@ -41,7 +41,7 @@
     CompanyName       = 'Stolpe.io'
 
     # Copyright statement for this module
-    Copyright         = '(c) Robin Stolpe. All rights reserved.'
+    Copyright         = '(c) 2022 Robin Stolpe. All rights reserved.'
 
     # Description of the functionality provided by this module
     Description       = 'Delete Windows user profiles that are saved on local or remote computers, you can also return all of the user profiles that are saved on the local or remote computer'
