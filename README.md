@@ -18,7 +18,7 @@ If you use this module on a remote computer you need to make sure that you have 
 
 # Install
 ```
-Install-Module -Name DeleteUserProfiles
+Install-Module -Name DeleteUserProfile
 ```
 
 # Example
