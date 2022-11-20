@@ -13,7 +13,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #>
 
-Function Get-UserProfiles {
+Function Get-UserProfile {
     <#
         .SYNOPSIS
         Return all user profiles that are saved on a computer
@@ -30,23 +30,23 @@ Function Get-UserProfiles {
 
         .EXAMPLE
         # This will return all of the user profiles saved on the local machine
-        Get-UserProfiles
+        Get-UserProfile
 
         .EXAMPLE
         # This will return all of the user profiles saved on the local machine except user profiles that are named Frank and rstolpe
-        Get-UserProfiles -ExcludedProfiles @("Frank", "rstolpe")
+        Get-UserProfile -ExcludedProfile @("Frank", "rstolpe")
 
         .EXAMPLE
         # This will return all of the user profiles saved on the remote computer "Win11-test"
-        Get-UserProfiles -ComputerName "Win11-Test"
+        Get-UserProfile -ComputerName "Win11-Test"
 
         .EXAMPLE
         # This will return all of the user profiles saved on the remote computers named Win11-Test and Win10
-        Get-UserProfiles -ComputerName "Win11-Test, Win10"
+        Get-UserProfile -ComputerName "Win11-Test, Win10"
 
         .EXAMPLE
         # This will return all of the user profiles saved on the remote computer "Win11-Test" except user profiles that are named Frank and rstolpe
-        Get-UserProfiles -ComputerName "Win11-Test" -ExcludedProfiles @("Frank", "rstolpe")
+        Get-UserProfile -ComputerName "Win11-Test" -ExcludedProfile @("Frank", "rstolpe")
 
         .NOTES
         Author:  Robin Stolpe
@@ -59,13 +59,13 @@ Function Get-UserProfiles {
     [CmdletBinding()]
     Param(
         [string]$ComputerName = "localhost",
-        [array]$ExcludedProfiles
+        [array]$ExcludedProfile
     )
     foreach ($Computer in $ComputerName.Split(",").Trim()) {
         Write-Host "`n== All profiles on $($Computer) ==`n"
         try {
             Get-CimInstance -ComputerName $Computer -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Foreach-Object {
-                if (-Not ($_.LocalPath.split('\')[-1] -in $ExcludedProfiles)) {
+                if (-Not ($_.LocalPath.split('\')[-1] -in $ExcludedProfile)) {
                     [PSCustomObject]@{
                         'UserName'               = $_.LocalPath.split('\')[-1]
                         'Profile path'           = $_.LocalPath
@@ -106,7 +106,7 @@ Function Remove-UserProfile {
 
         .EXAMPLE
         # This will delete all of the user profiles except user profile User1 and User2 on the local computer
-        Remove-UserProfile -ExcludedProfiles @("User1", "User2") -DeleteAll
+        Remove-UserProfile -ExcludedProfile @("User1", "User2") -DeleteAll
 
         .EXAMPLE
         # This will delete only user profile "User1" and "User2" from the local computer where you run the script from.
@@ -118,7 +118,7 @@ Function Remove-UserProfile {
 
         .EXAMPLE
         # This will delete all of the user profiles except user profile User1 and User2 on the remote computer named "Win11-Test"
-        Remove-UserProfile -ComputerName "Win11-test" -ExcludedProfiles @("User1", "User2") -DeleteAll
+        Remove-UserProfile -ComputerName "Win11-test" -ExcludedProfile @("User1", "User2") -DeleteAll
 
         .EXAMPLE
         # This will delete only user profile "User1" and "User2" from the remote computer named "Win11-Test"
@@ -137,14 +137,14 @@ Function Remove-UserProfile {
         [string]$ComputerName = "localhost",
         [array]$ProfileToDelete,
         [switch]$DeleteAll,
-        [array]$ExcludedProfiles
+        [array]$ExcludedProfile
     )
 
-    $AllUserProfiles = Get-CimInstance -ComputerName $ComputerName -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Select-Object LocalPath, Loaded
+    $AllUserProfile = Get-CimInstance -ComputerName $ComputerName -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Select-Object LocalPath, Loaded
 
     if ($DeleteAll -eq $True) {
-        foreach ($Profile in $AllUserProfiles) {
-            if ($Profile.LocalPath.split('\')[-1] -in $ExcludedProfiles) {
+        foreach ($Profile in $AllUserProfile) {
+            if ($Profile.LocalPath.split('\')[-1] -in $ExcludedProfile) {
                 Write-Host "$($Profile.LocalPath.split('\')[-1]) are excluded so it wont be deleted, proceeding to next profile..."
             }
             else {
