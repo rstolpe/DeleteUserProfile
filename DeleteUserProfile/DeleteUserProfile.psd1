@@ -26,7 +26,7 @@
     RootModule        = '.\DeleteUserProfile.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.0.2'
+    ModuleVersion     = '0.0.4'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -47,7 +47,7 @@
     Description       = 'Delete Windows user profiles that are saved on local or remote computers, you can also return all of the user profiles that are saved on the local or remote computer'
 
     # Minimum version of the PowerShell engine required by this module
-    # PowerShellVersion = ''
+    PowerShellVersion = '5.1'
 
     # Name of the PowerShell host required by this module
     # PowerShellHostName = ''

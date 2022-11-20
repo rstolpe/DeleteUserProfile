@@ -59,7 +59,9 @@ Function Get-UserProfile {
 
     [CmdletBinding()]
     Param(
+        [Parameter(Mandatory = $false, HelpMessage = "Write the name of the computer or computers that you want to return user profiles from")]
         [string]$ComputerName = "localhost",
+        [Parameter(Mandatory = $false, HelpMessage = "Write the name of the user profile or profiles that you want to exclude from the return")]
         [array]$ExcludedProfile
     )
     foreach ($Computer in $ComputerName.Split(",").Trim()) {
@@ -136,9 +138,13 @@ Function Remove-UserProfile {
 
     [CmdletBinding()]
     Param(
+        [Parameter(Mandatory = $false, HelpMessage = "Write the name of the computer or computers that you want to return user profiles from")]
         [string]$ComputerName = "localhost",
-        [array]$ProfileToDelete,
-        [switch]$DeleteAll,
+        [Parameter(Mandatory = $false, HelpMessage = "Specify the user profiles that you want to delete")]
+        [string]$ProfileToDelete,
+        [Parameter(Mandatory = $false, HelpMessage = "Use this switch if you want to delete all the user profiles")]
+        [switch]$DeleteAll = $false,
+        [Parameter(Mandatory = $false, HelpMessage = "Write the name of the user profile or profiles that you want to exclude from the return")]
         [array]$ExcludedProfile
     )
 
@@ -168,7 +174,7 @@ Function Remove-UserProfile {
         }
     }
     elseif ($DeleteAll -eq $False) {
-        foreach ($user in $ProfileToDelete) {
+        foreach ($user in $ProfileToDelete.Split(",").Trim()) {
             if ("$env:SystemDrive\Users\$($user)" -in $AllUserProfiles.LocalPath) {
                 # check if the userprofile are loaded and if it is show warning
                 try {
