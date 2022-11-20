@@ -13,7 +13,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #>
 
-Function Get-UserProfile {
+Function Get-RSUserProfile {
     <#
         .SYNOPSIS
         Return all user profiles that are saved on a computer
@@ -30,23 +30,23 @@ Function Get-UserProfile {
 
         .EXAMPLE
         # This will return all of the user profiles saved on the local machine
-        Get-UserProfile
+        Get-RSUserProfile
 
         .EXAMPLE
         # This will return all of the user profiles saved on the local machine except user profiles that are named Frank and rstolpe
-        Get-UserProfile -ExcludedProfile @("Frank", "rstolpe")
+        Get-RSUserProfile -ExcludedProfile @("Frank", "rstolpe")
 
         .EXAMPLE
         # This will return all of the user profiles saved on the remote computer "Win11-test"
-        Get-UserProfile -ComputerName "Win11-Test"
+        Get-RSUserProfile -ComputerName "Win11-Test"
 
         .EXAMPLE
         # This will return all of the user profiles saved on the remote computers named Win11-Test and Win10
-        Get-UserProfile -ComputerName "Win11-Test, Win10"
+        Get-RSUserProfile -ComputerName "Win11-Test, Win10"
 
         .EXAMPLE
         # This will return all of the user profiles saved on the remote computer "Win11-Test" except user profiles that are named Frank and rstolpe
-        Get-UserProfile -ComputerName "Win11-Test" -ExcludedProfile @("Frank", "rstolpe")
+        Get-RSUserProfile -ComputerName "Win11-Test" -ExcludedProfile @("Frank", "rstolpe")
 
         .NOTES
         Author:  	Robin Stolpe
@@ -90,7 +90,7 @@ Function Get-UserProfile {
     }
 }
 
-Function Remove-UserProfile {
+Function Remove-RSUserProfile {
     <#
         .SYNOPSIS
         Let you delete user profiles from a local or remote computer
@@ -110,27 +110,27 @@ Function Remove-UserProfile {
 
         .EXAMPLE
         # This will delete all of the user profiles from the local computer your running the script from.
-        Remove-UserProfile -DeleteAll
+        Remove-RSUserProfile -DeleteAll
 
         .EXAMPLE
         # This will delete all of the user profiles except user profile User1 and User2 on the local computer
-        Remove-UserProfile -ExcludedProfile @("User1", "User2") -DeleteAll
+        Remove-RSUserProfile -ExcludedProfile @("User1", "User2") -DeleteAll
 
         .EXAMPLE
         # This will delete only user profile "User1" and "User2" from the local computer where you run the script from.
-        Remove-UserProfile -ProfileToDelete "User1, User2"
+        Remove-RSUserProfile -ProfileToDelete "User1, User2"
 
         .EXAMPLE
         # This will delete all of the user profiles on the remote computer named "Win11-Test"
-        Remove-UserProfile -ComputerName "Win11-test" -DeleteAll
+        Remove-RSUserProfile -ComputerName "Win11-test" -DeleteAll
 
         .EXAMPLE
         # This will delete all of the user profiles except user profile User1 and User2 on the remote computer named "Win11-Test"
-        Remove-UserProfile -ComputerName "Win11-test" -ExcludedProfile @("User1", "User2") -DeleteAll
+        Remove-RSUserProfile -ComputerName "Win11-test" -ExcludedProfile @("User1", "User2") -DeleteAll
 
         .EXAMPLE
         # This will delete only user profile "User1" and "User2" from the remote computer named "Win11-Test"
-        Remove-UserProfile -ComputerName "Win11-test" -ProfileToDelete "User1, User2"
+        Remove-RSUserProfile -ComputerName "Win11-test" -ProfileToDelete "User1, User2"
 
         .NOTES
         Author:  	Robin Stolpe

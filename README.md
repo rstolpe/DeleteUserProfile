@@ -22,38 +22,38 @@ Install-Module -Name DeleteUserProfile
 ```
 
 # Example
-## Get-UserProfile
+## Get-RSUserProfile
 If you want to use this on a remote computer just add the parameter ```-ComputerName <COMPUTERNAME>``` in the commands below.  
   
 ```
-Get-UserProfile
+Get-RSUserProfile
 ```
 Return all user profiles that are saved on the local computer
 
 ```
-Get-UserProfile -ExcludedProfile @("Frank", "rstolpe")
+Get-RSUserProfile -ExcludedProfile @("Frank", "rstolpe")
 ```
 This will return all of the user profiles saved on the local machine except user profiles that are named Frank and rstolpe
 
 ```
-Get-UserProfile -ComputerName "Win11-Test, Win10"
+Get-RSUserProfile -ComputerName "Win11-Test, Win10"
 ```
 This will return all of the user profiles saved on the remote computers named Win11-Test and Win10
 
-## Remove-UserProfile
+## Remove-RSUserProfile
 If you want to use this on a remote computer just add the parameter ```-ComputerName <COMPUTERNAME>``` in the commands below.  
   
 ```
-Remove-UserProfile -DeleteAll
+Remove-RSUserProfile -DeleteAll
 ```
 This will delete all of the user profiles from the localhost / computer your running the module from.
 
 ```
-Remove-UserProfile -ExcludedProfile @("User1", "User2") -DeleteAll
+Remove-RSUserProfile -ExcludedProfile @("User1", "User2") -DeleteAll
 ```
 This will delete all of the user profiles except user profile User1 and User2 on the local computer
 
 ```
-Remove-UserProfile -ProfileToDelete "User1, User2"
+Remove-RSUserProfile -ProfileToDelete "User1, User2"
 ```
 This will delete only user profile "User1" and "User2" from the local computer where you run the script from.
