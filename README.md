@@ -54,6 +54,6 @@ Remove-UserProfile -ExcludedProfile @("User1", "User2") -DeleteAll
 This will delete all of the user profiles except user profile User1 and User2 on the local computer
 
 ```
-Remove-UserProfile -ProfileToDelete @("User1", "User2")
+Remove-UserProfile -ProfileToDelete "User1, User2"
 ```
 This will delete only user profile "User1" and "User2" from the local computer where you run the script from.

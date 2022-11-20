@@ -113,7 +113,7 @@ Function Remove-UserProfile {
 
         .EXAMPLE
         # This will delete only user profile "User1" and "User2" from the local computer where you run the script from.
-        Remove-UserProfile -ProfileToDelete @("User1", "User2")
+        Remove-UserProfile -ProfileToDelete "User1, User2"
 
         .EXAMPLE
         # This will delete all of the user profiles on the remote computer named "Win11-Test"
@@ -125,7 +125,7 @@ Function Remove-UserProfile {
 
         .EXAMPLE
         # This will delete only user profile "User1" and "User2" from the remote computer named "Win11-Test"
-        Remove-UserProfile -ComputerName "Win11-test" -ProfileToDelete @("User1", "User2")
+        Remove-UserProfile -ComputerName "Win11-test" -ProfileToDelete "User1, User2"
 
         .NOTES
         Author:  	Robin Stolpe
