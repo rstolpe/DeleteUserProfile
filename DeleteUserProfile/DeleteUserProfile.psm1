@@ -65,22 +65,27 @@ Function Get-UserProfile {
         [array]$ExcludedProfile
     )
     foreach ($Computer in $ComputerName.Split(",").Trim()) {
-        Write-Host "`n== All profiles on $($Computer) ==`n"
-        try {
-            Get-CimInstance -ComputerName $Computer -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Foreach-Object {
-                if (-Not ($_.LocalPath.split('\')[-1] -in $ExcludedProfile)) {
-                    [PSCustomObject]@{
-                        'UserName'               = $_.LocalPath.split('\')[-1]
-                        'Profile path'           = $_.LocalPath
-                        'Last used'              = ($_.LastUseTime -as [DateTime]).ToString("yyyy-MM-dd HH:mm")
-                        'Is the profile active?' = $_.Loaded
+        if (Test-WSMan -ComputerName $Computer -ErrorAction SilentlyContinue) {
+            Write-Host "`n== All profiles on $($Computer) ==`n"
+            try {
+                Get-CimInstance -ComputerName $Computer -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Foreach-Object {
+                    if (-Not ($_.LocalPath.split('\')[-1] -in $ExcludedProfile)) {
+                        [PSCustomObject]@{
+                            'UserName'               = $_.LocalPath.split('\')[-1]
+                            'Profile path'           = $_.LocalPath
+                            'Last used'              = ($_.LastUseTime -as [DateTime]).ToString("yyyy-MM-dd HH:mm")
+                            'Is the profile active?' = $_.Loaded
+                        }
                     }
-                }
-            } | Format-Table
+                } | Format-Table
+            }
+            catch {
+                Write-Error "$($PSItem.Exception)"
+                break
+            }
         }
-        catch {
-            Write-Error "$($PSItem.Exception)"
-            break
+        else {
+            Write-Host "$($Computer) are not connected to the network or it's trouble with WinRM"
         }
     }
 }
@@ -148,48 +153,53 @@ Function Remove-UserProfile {
         [array]$ExcludedProfile
     )
 
-    $AllUserProfile = Get-CimInstance -ComputerName $ComputerName -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Select-Object LocalPath, Loaded
-
-    if ($DeleteAll -eq $True) {
-        foreach ($Profile in $AllUserProfile) {
-            if ($Profile.LocalPath.split('\')[-1] -in $ExcludedProfile) {
-                Write-Host "$($Profile.LocalPath.split('\')[-1]) are excluded so it wont be deleted, proceeding to next profile..."
-            }
-            else {
-                if ($Profile.Loaded -eq $True) {
-                    Write-Warning "The user profile $($Profile.LocalPath.split('\')[-1]) is loaded, can't delete it so skipping it!"
-                }
-                else {
-                    try {
-                        Write-Host "Deleting user profile $($Profile.LocalPath.split('\')[-1])..."
-                        Get-CimInstance -ComputerName $ComputerName Win32_UserProfile | Where-Object { $_.LocalPath -eq $Profile.LocalPath } | Remove-CimInstance
-                        Write-Host "The user profile $($Profile.LocalPath.split('\')[-1]) are now deleted!" -ForegroundColor Green
+    foreach ($Computer in $ComputerName.Split(",").Trim()) {
+        if (Test-WSMan -ComputerName $Computer -ErrorAction SilentlyContinue) {
+            if ($DeleteAll -eq $True) {
+                foreach ($Profile in $(Get-CimInstance -ComputerName $Computer -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Select-Object LocalPath, Loaded)) {
+                    if ($Profile.LocalPath.split('\')[-1] -in $ExcludedProfile) {
+                        Write-Host "$($Profile.LocalPath.split('\')[-1]) are excluded so it wont be deleted, proceeding to next profile..."
                     }
-                    catch {
-                        Write-Error "$($PSItem.Exception)"
-                        continue
+                    else {
+                        if ($Profile.Loaded -eq $True) {
+                            Write-Warning "The user profile $($Profile.LocalPath.split('\')[-1]) is loaded, can't delete it so skipping it!"
+                        }
+                        else {
+                            try {
+                                Write-Host "Deleting user profile $($Profile.LocalPath.split('\')[-1])..."
+                                Get-CimInstance -ComputerName $Computer Win32_UserProfile | Where-Object { $_.LocalPath -eq $Profile.LocalPath } | Remove-CimInstance
+                                Write-Host "The user profile $($Profile.LocalPath.split('\')[-1]) are now deleted!" -ForegroundColor Green
+                            }
+                            catch {
+                                Write-Error "$($PSItem.Exception)"
+                                continue
+                            }
+                        }
+                    }
+                }
+            }
+            elseif ($DeleteAll -eq $False) {
+                foreach ($user in $ProfileToDelete.Split(",").Trim()) {
+                    if ("$env:SystemDrive\Users\$($user)" -in $AllUserProfiles.LocalPath) {
+                        # check if the userprofile are loaded and if it is show warning
+                        try {
+                            Write-Host "Deleting user profile $($user)..."
+                            Get-CimInstance -ComputerName $Computer Win32_UserProfile | Where-Object { $_.LocalPath -eq "$env:SystemDrive\Users\$($user)" } | Remove-CimInstance
+                            Write-Host "The user profile $($user) are now deleted!" -ForegroundColor Green
+                        }
+                        catch {
+                            Write-Error "$($PSItem.Exception)"
+                            continue
+                        }
+                    }
+                    else {
+                        Write-Warning "$($user) did not have any user profile on $($Computer)!"
                     }
                 }
             }
         }
-    }
-    elseif ($DeleteAll -eq $False) {
-        foreach ($user in $ProfileToDelete.Split(",").Trim()) {
-            if ("$env:SystemDrive\Users\$($user)" -in $AllUserProfiles.LocalPath) {
-                # check if the userprofile are loaded and if it is show warning
-                try {
-                    Write-Host "Deleting user profile $($user)..."
-                    Get-CimInstance -ComputerName $ComputerName Win32_UserProfile | Where-Object { $_.LocalPath -eq "$env:SystemDrive\Users\$($user)" } | Remove-CimInstance
-                    Write-Host "The user profile $($user) are now deleted!" -ForegroundColor Green
-                }
-                catch {
-                    Write-Error "$($PSItem.Exception)"
-                    continue
-                }
-            }
-            else {
-                Write-Warning "$($user) did not have any user profile on $($ComputerName)!"
-            }
+        else {
+            Write-Host "$($Computer) are not connected to the network or it's trouble with WinRM"
         }
     }
 }
