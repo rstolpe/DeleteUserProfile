@@ -112,16 +112,16 @@
             Tags         = @("Windows", "PowerShell", "ReturnUserProfile", "UserProfile", "DeleteUserProfile", "Support-Tools", "IT-Tools")
 
             # A URL to the license for this module.
-            LicenseUri   = 'https://github.com/rstolpe/DeleteUserProfiles/blob/main/LICENSE'
+            LicenseUri   = 'https://github.com/rstolpe/DeleteUserProfile/blob/main/LICENSE'
 
             # A URL to the main website for this project.
-            ProjectUri   = 'https://github.com/rstolpe/DeleteUserProfiles'
+            ProjectUri   = 'https://github.com/rstolpe/DeleteUserProfile'
 
             # A URL to an icon representing this module.
             # IconUri = ''
 
             # ReleaseNotes of this module
-            ReleaseNotes = 'https://github.com/rstolpe/DeleteUserProfiles/releases'
+            ReleaseNotes = 'https://github.com/rstolpe/DeleteUserProfile/releases'
 
             # Prerelease string of this module
             # Prerelease = ''
@@ -137,7 +137,7 @@
     } # End of PrivateData hashtable
 
     # HelpInfo URI of this module
-    # HelpInfoURI = ''
+    HelpInfoURI       = 'https://github.com/rstolpe/DeleteUserProfile/blob/main/README.md'
 
     # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
     # DefaultCommandPrefix = ''
