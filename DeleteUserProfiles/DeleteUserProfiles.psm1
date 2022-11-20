@@ -49,11 +49,12 @@ Function Get-UserProfile {
         Get-UserProfile -ComputerName "Win11-Test" -ExcludedProfile @("Frank", "rstolpe")
 
         .NOTES
-        Author:  Robin Stolpe
-        Website: https://stolpe.io
-        GitHub:  https://github.com/rstolpe
-        Mail:    robin@stolpe.io
-        Twitter: @rstolpes
+        Author:  	Robin Stolpe
+        Mail:    	robin@stolpe.io
+        Twitter: 	@rstolpes
+        Website: 	https://stolpe.io
+        GitHub:  	https://github.com/rstolpe
+        PSGallery:	https://www.powershellgallery.com/profiles/rstolpe
     #>
 
     [CmdletBinding()]
@@ -125,11 +126,12 @@ Function Remove-UserProfile {
         Remove-UserProfile -ComputerName "Win11-test" -ProfileToDelete @("User1", "User2")
 
         .NOTES
-        Author:  Robin Stolpe
-        Website: https://stolpe.io
-        GitHub:  https://github.com/rstolpe
-        Mail:    robin@stolpe.io
-        Twitter: @rstolpes
+        Author:  	Robin Stolpe
+        Mail:    	robin@stolpe.io
+        Twitter: 	@rstolpes
+        Website: 	https://stolpe.io
+        GitHub:  	https://github.com/rstolpe
+        PSGallery:	https://www.powershellgallery.com/profiles/rstolpe
     #>
 
     [CmdletBinding()]
