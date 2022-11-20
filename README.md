@@ -13,12 +13,15 @@ The special windows profiles are excluded.
   
 If you use this module on a remote computer you need to make sure that you have [WinRM](https://github.com/rstolpe/Guides/blob/main/Windows/WinRM_GPO.md) activated.
 
-### Links
-- [YouTube video](https://youtube.com/shorts/SPPSHiMjVmA?feature=share)
-
 # Install
+Install for current user
 ```
-Install-Module -Name DeleteUserProfile
+Install-Module -Name DeleteUserProfile -Scope CurrentUser -Force
+```
+  
+Install for all users
+```
+Install-Module -Name DeleteUserProfile -Scope AllUsers -Force
 ```
 
 # Example
