@@ -23,7 +23,7 @@
 @{
 
     # Script module or binary module file associated with this manifest.
-    RootModule        = '.\DeleteUserProfiles.psm1'
+    RootModule        = '.\DeleteUserProfile.psm1'
 
     # Version number of this module.
     ModuleVersion     = '0.0.2'
