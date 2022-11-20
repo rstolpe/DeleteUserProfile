@@ -109,25 +109,25 @@
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags         = @("Windows", "PowerShell", "ReturnUserProfile", "UserProfile", "DeleteUserProfile", "Support-Tools", "IT-Tools", "sysadmin-tools")
+            Tags                     = @("Windows", "PowerShell", "ReturnUserProfile", "UserProfile", "DeleteUserProfile", "Support-Tools", "IT-Tools", "sysadmin-tools")
 
             # A URL to the license for this module.
-            LicenseUri   = 'https://github.com/rstolpe/DeleteUserProfile/blob/main/LICENSE'
+            LicenseUri               = 'https://github.com/rstolpe/DeleteUserProfile/blob/main/LICENSE'
 
             # A URL to the main website for this project.
-            ProjectUri   = 'https://github.com/rstolpe/DeleteUserProfile'
+            ProjectUri               = 'https://github.com/rstolpe/DeleteUserProfile'
 
             # A URL to an icon representing this module.
             # IconUri = ''
 
             # ReleaseNotes of this module
-            ReleaseNotes = 'https://github.com/rstolpe/DeleteUserProfile/releases'
+            ReleaseNotes             = 'https://github.com/rstolpe/DeleteUserProfile/releases'
 
             # Prerelease string of this module
             # Prerelease = ''
 
             # Flag to indicate whether the module requires explicit user acceptance for install/update/save
-            # RequireLicenseAcceptance = $false
+            RequireLicenseAcceptance = $false
 
             # External dependent modules of this module
             # ExternalModuleDependencies = @()
