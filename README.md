@@ -23,7 +23,6 @@ If you use this module on a remote computer you need to make sure that you have 
 * [Webpage/Blog](https://www.stolpe.io)
 * [Twitter](https://twitter.com/rstolpes)
 * [LinkedIn](https://www.linkedin.com/in/rstolpe/)
-* [YouTube]()
 * [PowerShell Gallery](https://www.powershellgallery.com/profiles/rstolpe)
 
 # Help
