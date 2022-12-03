@@ -7,7 +7,7 @@ SYNOPSIS
     
     
 SYNTAX
-    Get-RSUserProfile [[-ComputerName] <String>] [[-ExcludedProfile] <String>] [<CommonParameters>]
+    Get-RSUserProfile [[-ComputerName] <String>] [[-Excluded] <String>] [<CommonParameters>]
     
     
 DESCRIPTION
@@ -25,7 +25,7 @@ PARAMETERS
         Accept pipeline input?       false
         Accept wildcard characters?  false
         
-    -ExcludedProfile <String>
+    -Excluded <String>
         
         Required?                    false
         Position?                    2
@@ -66,7 +66,7 @@ NOTES
     
     -------------------------- EXAMPLE 2 --------------------------
     
-    PS > Get-RSUserProfile -ExcludedProfile "Frank, rstolpe"
+    PS > Get-RSUserProfile -Excluded "Frank, rstolpe"
     # This will return all of the user profiles saved on the local machine except user profiles that are named Frank and rstolpe
     
     
@@ -96,7 +96,7 @@ NOTES
     
     -------------------------- EXAMPLE 5 --------------------------
     
-    PS > Get-RSUserProfile -ComputerName "Win11-Test" -ExcludedProfile "Frank, rstolpe"
+    PS > Get-RSUserProfile -ComputerName "Win11-Test" -Excluded "Frank, rstolpe"
     # This will return all of the user profiles saved on the remote computer "Win11-Test" except user profiles that are named Frank and rstolpe
     
     

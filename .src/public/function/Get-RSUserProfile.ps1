@@ -18,7 +18,7 @@
         # This will return all of the user profiles saved on the local machine
 
         .EXAMPLE
-        Get-RSUserProfile -ExcludedProfile "Frank, rstolpe"
+        Get-RSUserProfile -Excluded "Frank, rstolpe"
         # This will return all of the user profiles saved on the local machine except user profiles that are named Frank and rstolpe
 
         .EXAMPLE
@@ -30,7 +30,7 @@
         # This will return all of the user profiles saved on the remote computers named Win11-Test and Win10
 
         .EXAMPLE
-        Get-RSUserProfile -ComputerName "Win11-Test" -ExcludedProfile "Frank, rstolpe"
+        Get-RSUserProfile -ComputerName "Win11-Test" -Excluded "Frank, rstolpe"
         # This will return all of the user profiles saved on the remote computer "Win11-Test" except user profiles that are named Frank and rstolpe
 
         .LINK
@@ -51,14 +51,14 @@
         [Parameter(Mandatory = $false, HelpMessage = "Enter computername on the computer that you to delete user profiles from, multiple names are accepted if separated with ,")]
         [string]$ComputerName = "localhost",
         [Parameter(Mandatory = $false, HelpMessage = "Enter name of user profiles that you want to exclude, multiple input are accepted if separated with ,")]
-        [string]$ExcludedProfile
+        [string]$Excluded
     )
     foreach ($Computer in $ComputerName.Split(",").Trim()) {
         if (Test-WSMan -ComputerName $Computer -ErrorAction SilentlyContinue) {
             Write-Output "`n== All profiles on $($Computer) ==`n"
             try {
                 Get-CimInstance -ComputerName $Computer -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Foreach-Object {
-                    if (-Not ($_.LocalPath.split('\')[-1] -in $ExcludedProfile)) {
+                    if (-Not ($_.LocalPath.split('\')[-1] -in $Excluded)) {
                         [PSCustomObject]@{
                             'UserName'               = $_.LocalPath.split('\')[-1]
                             'Profile path'           = $_.LocalPath
