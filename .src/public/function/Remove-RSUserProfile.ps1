@@ -82,7 +82,7 @@
                             try {
                                 Write-Output "Deleting user profile $($Profile.LocalPath.split('\')[-1])..."
                                 Get-CimInstance -ComputerName $Computer Win32_UserProfile | Where-Object { $_.LocalPath -eq $Profile.LocalPath } | Remove-CimInstance
-                                Write-Output "The user profile $($Profile.LocalPath.split('\')[-1]) are now deleted!" -ForegroundColor Green
+                                Write-Output "The user profile $($Profile.LocalPath.split('\')[-1]) are now deleted!"
                             }
                             catch {
                                 Write-Error "$($PSItem.Exception)"
@@ -99,7 +99,7 @@
                         try {
                             Write-Output "Deleting user profile $($user)..."
                             Get-CimInstance -ComputerName $Computer Win32_UserProfile | Where-Object { $_.LocalPath -eq "$env:SystemDrive\Users\$($user)" } | Remove-CimInstance
-                            Write-Output "The user profile $($user) are now deleted!" -ForegroundColor Green
+                            Write-Output "The user profile $($user) are now deleted!"
                         }
                         catch {
                             Write-Error "$($PSItem.Exception)"
