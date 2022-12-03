@@ -7,7 +7,7 @@ SYNOPSIS
     
     
 SYNTAX
-    Remove-RSUserProfile [[-ComputerName] <String>] [[-ProfileToDelete] <String>] [-DeleteAll] [[-ExcludedProfile] <String>] [<CommonParameters>]
+    Remove-RSUserProfile [[-ComputerName] <String>] [[-Delete] <String>] [-DeleteAll] [[-Excluded] <String>] [<CommonParameters>]
     
     
 DESCRIPTION
@@ -17,6 +17,7 @@ DESCRIPTION
 
 PARAMETERS
     -ComputerName <String>
+        The name of the remote computer you want to display all of the user profiles from. If you want to use it on a local computer you don't need to fill this one out.
         
         Required?                    false
         Position?                    1
@@ -24,7 +25,7 @@ PARAMETERS
         Accept pipeline input?       false
         Accept wildcard characters?  false
         
-    -ProfileToDelete <String>
+    -Delete <String>
         If you want to delete just one user profile your specify the username here.
         
         Required?                    false
@@ -42,7 +43,7 @@ PARAMETERS
         Accept pipeline input?       false
         Accept wildcard characters?  false
         
-    -ExcludedProfile <String>
+    -Excluded <String>
         
         Required?                    false
         Position?                    3
@@ -83,7 +84,7 @@ NOTES
     
     -------------------------- EXAMPLE 2 --------------------------
     
-    PS > Remove-RSUserProfile -ExcludedProfile "User1, User2" -DeleteAll
+    PS > Remove-RSUserProfile -Excluded "User1, User2" -DeleteAll
     # This will delete all of the user profiles except user profile User1 and User2 on the local computer
     
     
@@ -93,7 +94,7 @@ NOTES
     
     -------------------------- EXAMPLE 3 --------------------------
     
-    PS > Remove-RSUserProfile -ProfileToDelete "User1, User2"
+    PS > Remove-RSUserProfile -Delete "User1, User2"
     # This will delete only user profile "User1" and "User2" from the local computer where you run the script from.
     
     
@@ -113,7 +114,7 @@ NOTES
     
     -------------------------- EXAMPLE 5 --------------------------
     
-    PS > Remove-RSUserProfile -ComputerName "Win11-test" -ExcludedProfile "User1, User2" -DeleteAll
+    PS > Remove-RSUserProfile -ComputerName "Win11-test" -Excluded "User1, User2" -DeleteAll
     # This will delete all of the user profiles except user profile User1 and User2 on the remote computer named "Win11-Test"
     
     
@@ -123,7 +124,7 @@ NOTES
     
     -------------------------- EXAMPLE 6 --------------------------
     
-    PS > Remove-RSUserProfile -ComputerName "Win11-test" -ProfileToDelete "User1, User2"
+    PS > Remove-RSUserProfile -ComputerName "Win11-test" -Delete "User1, User2"
     # This will delete only user profile "User1" and "User2" from the remote computer named "Win11-Test"
     
     

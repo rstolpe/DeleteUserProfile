@@ -1,13 +1,25 @@
 ﻿
 Line                 : 69
 Column               : 17
-Message              : The parameter 'ExcludedProfile' has been declared but not used. 
-Extent               : $ExcludedProfile
+Message              : The parameter 'Excluded' has been declared but not used. 
+Extent               : $Excluded
 RuleName             : PSReviewUnusedParameter
 Severity             : Warning
 ScriptName           : DeleteUserProfile.psm1
 ScriptPath           : /Users/rstolpe/Dev/GitHub/DeleteUserProfile/DeleteUserProfile/DeleteUserProfile.psm1
-RuleSuppressionID    : ExcludedProfile
+RuleSuppressionID    : Excluded
+SuggestedCorrections : 
+IsSuppressed         : False
+
+Line                 : 160
+Column               : 17
+Message              : The parameter 'Excluded' has been declared but not used. 
+Extent               : $Excluded
+RuleName             : PSReviewUnusedParameter
+Severity             : Warning
+ScriptName           : DeleteUserProfile.psm1
+ScriptPath           : /Users/rstolpe/Dev/GitHub/DeleteUserProfile/DeleteUserProfile/DeleteUserProfile.psm1
+RuleSuppressionID    : Excluded
 SuggestedCorrections : 
 IsSuppressed         : False
 
