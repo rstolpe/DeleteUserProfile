@@ -124,7 +124,7 @@
             ReleaseNotes = 'https://github.com/rstolpe/DeleteUserProfile/releases'
 
             # Prerelease string of this module
-            Prerelease = '-beta'
+            Prerelease = 'beta'
 
             # Flag to indicate whether the module requires explicit user acceptance for install/update/save
             RequireLicenseAcceptance = $false
