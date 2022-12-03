@@ -44,7 +44,7 @@
     Copyright = '(c) 2022 Robin Stolpe. All rights reserved.'
 
     # Description of the functionality provided by this module
-    # Description = 'Delete Windows user profiles that are saved on local or remote computers, you can also return all of the user profiles that are saved on the local or remote computer'
+    Description = 'Delete Windows user profiles that are saved on local or remote computers, you can also return all of the user profiles that are saved on the local or remote computer'
 
     # Minimum version of the PowerShell engine required by this module
     PowerShellVersion = '5.1'
@@ -83,7 +83,7 @@
     # NestedModules = @()
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport = "Get-RSUserProfile", "Remove-RSUserProfile"
+    FunctionsToExport = @("Get-RSUserProfile", "Remove-RSUserProfile")
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport = @()
