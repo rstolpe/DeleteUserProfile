@@ -4,7 +4,7 @@
     [string]$Version = "0.0.6",
     # Fix this
     [Parameter(Mandatory = $false, HelpMessage = ".")]
-    [string]$preRelease = "Alpha",
+    [string]$preRelease = "beta",
     [Parameter(Mandatory = $false, HelpMessage = "Use this switch to publish this module on PSGallery")]
     [bool]$Publish = $false,
     # Validate so if $Publish is true this is needed
