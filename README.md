@@ -53,7 +53,7 @@ Get-RSUserProfile
 Return all user profiles that are saved on the local computer
 
 ```
-Get-RSUserProfile -Excluded "Frank, rstolpe"
+Get-RSUserProfile -Exclude "Frank, rstolpe"
 ```
 This will return all of the user profiles saved on the local machine except user profiles that are named Frank and rstolpe
 
@@ -71,7 +71,7 @@ Remove-RSUserProfile -DeleteAll
 This will delete all of the user profiles from the localhost / computer your running the module from.
 
 ```
-Remove-RSUserProfile -Excluded "User1, User2" -DeleteAll
+Remove-RSUserProfile -Exclude "User1, User2" -DeleteAll
 ```
 This will delete all of the user profiles except user profile User1 and User2 on the local computer
 

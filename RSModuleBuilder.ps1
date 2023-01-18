@@ -9,7 +9,7 @@
 [string]$apiKey = ""
 #
 # Changes on every build
-[string]$Version = "0.0.8"
+[string]$Version = "0.0.9"
 [string]$PowerShellVersion = "5.1"
 [string]$Tags = '"Windows", "PowerShell", "ReturnUserProfile", "UserProfile", "DeleteUserProfile", "Support-Tools", "IT-Tools", "sysadmin-tools", "windows-user-folder", "windows-user-profile"'
 [string]$ProcessorArchitecture = ""
