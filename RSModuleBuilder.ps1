@@ -11,7 +11,7 @@
 # Changes on every build
 [string]$Version = "0.0.7"
 [string]$PowerShellVersion = "5.1"
-[string]$Tags = '"Windows", "PowerShell", "ReturnUserProfile", "UserProfile", "DeleteUserProfile", "Support-Tools", "IT-Tools", "sysadmin-tools"'
+[string]$Tags = '"Windows", "PowerShell", "ReturnUserProfile", "UserProfile", "DeleteUserProfile", "Support-Tools", "IT-Tools", "sysadmin-tools", "windows-user-folder", "windows-user-profile"'
 [string]$ProcessorArchitecture = ""
 [string]$LicenseUrl = "https://github.com/rstolpe/DeleteUserProfile/blob/main/LICENSE"
 [string]$ProjectUrl = "https://github.com/rstolpe/DeleteUserProfile"

@@ -119,7 +119,7 @@
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags = @("Windows", "PowerShell", "ReturnUserProfile", "UserProfile", "DeleteUserProfile", "Support-Tools", "IT-Tools", "sysadmin-tools")
+            Tags = @("Windows", "PowerShell", "ReturnUserProfile", "UserProfile", "DeleteUserProfile", "Support-Tools", "IT-Tools", "sysadmin-tools", "windows-user-folder", "windows-user-profile")
 
             # A URL to the license for this module.
             LicenseUri = 'https://github.com/rstolpe/DeleteUserProfile/blob/main/LICENSE'
