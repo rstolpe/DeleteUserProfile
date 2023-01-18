@@ -9,16 +9,17 @@
 
         .PARAMETER ComputerName
         The name of the remote computer you want to display all of the user profiles from. If you want to use it on a local computer you don't need to fill this one out.
+        You can add multiple computers like this: -ComputerName "Win11-Test", "Win10"
 
         .PARAMETER Exclude
-        All of the usernames you write here will be excluded from the script and they will not show up, it's a array so you can add multiple users like @("User1", "User2")
+        All of the usernames you write here will be excluded from the script and they will not show up, it's a array so you can add multiple users like this: -Exclude "User1", "User2"
 
         .EXAMPLE
         Get-RSUserProfile
         # This will return all of the user profiles saved on the local machine
 
         .EXAMPLE
-        Get-RSUserProfile -Exclude "Frank, rstolpe"
+        Get-RSUserProfile -Exclude "Frank", "rstolpe"
         # This will return all of the user profiles saved on the local machine except user profiles that are named Frank and rstolpe
 
         .EXAMPLE
@@ -26,11 +27,11 @@
         # This will return all of the user profiles saved on the remote computer "Win11-test"
 
         .EXAMPLE
-        Get-RSUserProfile -ComputerName "Win11-Test, Win10"
+        Get-RSUserProfile -ComputerName "Win11-Test", "Win10"
         # This will return all of the user profiles saved on the remote computers named Win11-Test and Win10
 
         .EXAMPLE
-        Get-RSUserProfile -ComputerName "Win11-Test" -Exclude "Frank, rstolpe"
+        Get-RSUserProfile -ComputerName "Win11-Test" -Exclude "Frank", "rstolpe"
         # This will return all of the user profiles saved on the remote computer "Win11-Test" except user profiles that are named Frank and rstolpe
 
         .LINK
@@ -48,12 +49,12 @@
 
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory = $false, HelpMessage = "Enter computername on the computer that you to delete user profiles from, multiple names are accepted if separated with ,")]
-        [string]$ComputerName = "localhost",
-        [Parameter(Mandatory = $false, HelpMessage = "Enter name of user profiles that you want to exclude, multiple input are accepted if separated with ,")]
-        [string]$Exclude
+        [Parameter(Mandatory = $false, HelpMessage = "Enter computername on the computer that you to delete user profiles from, multiple names are supported")]
+        [string[]]$ComputerName = "localhost",
+        [Parameter(Mandatory = $false, HelpMessage = "Enter name of user profiles that you want to exclude, multiple names are supported")]
+        [string[]]$Exclude
     )
-    foreach ($Computer in $ComputerName.Split(",").Trim()) {
+    foreach ($Computer in $ComputerName) {
         if (Test-WSMan -ComputerName $Computer -ErrorAction SilentlyContinue) {
             Write-Output "`n== All profiles on $($Computer) ==`n"
             try {
