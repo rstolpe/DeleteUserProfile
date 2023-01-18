@@ -1,5 +1,5 @@
 ﻿
-Line                 : 69
+Line                 : 77
 Column               : 17
 Message              : The parameter 'Excluded' has been declared but not used. 
 Extent               : $Excluded
@@ -11,7 +11,7 @@ RuleSuppressionID    : Excluded
 SuggestedCorrections : 
 IsSuppressed         : False
 
-Line                 : 160
+Line                 : 168
 Column               : 17
 Message              : The parameter 'Excluded' has been declared but not used. 
 Extent               : $Excluded
@@ -23,7 +23,7 @@ RuleSuppressionID    : Excluded
 SuggestedCorrections : 
 IsSuppressed         : False
 
-Line                 : 96
+Line                 : 104
 Column               : 10
 Message              : Function 'Remove-RSUserProfile' has verb that could change system state. Therefore, the function has to support 'ShouldProcess'.
 Extent               : Remove-RSUserProfile
