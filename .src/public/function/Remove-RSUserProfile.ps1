@@ -21,7 +21,7 @@
         # This will delete all of the user profiles from the local computer your running the script from.
 
         .EXAMPLE
-        Remove-RSUserProfile -Excluded "User1, User2" -DeleteAll
+        Remove-RSUserProfile -Exclude "User1, User2" -DeleteAll
         # This will delete all of the user profiles except user profile User1 and User2 on the local computer
 
         .EXAMPLE
@@ -33,7 +33,7 @@
         # This will delete all of the user profiles on the remote computer named "Win11-Test"
 
         .EXAMPLE
-        Remove-RSUserProfile -ComputerName "Win11-test" -Excluded "User1, User2" -DeleteAll
+        Remove-RSUserProfile -ComputerName "Win11-test" -Exclude "User1, User2" -DeleteAll
         # This will delete all of the user profiles except user profile User1 and User2 on the remote computer named "Win11-Test"
 
         .EXAMPLE

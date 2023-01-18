@@ -10,7 +10,7 @@
         .PARAMETER ComputerName
         The name of the remote computer you want to display all of the user profiles from. If you want to use it on a local computer you don't need to fill this one out.
 
-        .PARAMETER ExcludedProfiles
+        .PARAMETER Exclude
         All of the usernames you write here will be excluded from the script and they will not show up, it's a array so you can add multiple users like @("User1", "User2")
 
         .EXAMPLE
@@ -18,7 +18,7 @@
         # This will return all of the user profiles saved on the local machine
 
         .EXAMPLE
-        Get-RSUserProfile -Excluded "Frank, rstolpe"
+        Get-RSUserProfile -Exclude "Frank, rstolpe"
         # This will return all of the user profiles saved on the local machine except user profiles that are named Frank and rstolpe
 
         .EXAMPLE
@@ -30,7 +30,7 @@
         # This will return all of the user profiles saved on the remote computers named Win11-Test and Win10
 
         .EXAMPLE
-        Get-RSUserProfile -ComputerName "Win11-Test" -Excluded "Frank, rstolpe"
+        Get-RSUserProfile -ComputerName "Win11-Test" -Exclude "Frank, rstolpe"
         # This will return all of the user profiles saved on the remote computer "Win11-Test" except user profiles that are named Frank and rstolpe
 
         .LINK
@@ -51,7 +51,7 @@
         [Parameter(Mandatory = $false, HelpMessage = "Enter computername on the computer that you to delete user profiles from, multiple names are accepted if separated with ,")]
         [string]$ComputerName = "localhost",
         [Parameter(Mandatory = $false, HelpMessage = "Enter name of user profiles that you want to exclude, multiple input are accepted if separated with ,")]
-        [string]$Excluded
+        [string]$Exclude
     )
     foreach ($Computer in $ComputerName.Split(",").Trim()) {
         if (Test-WSMan -ComputerName $Computer -ErrorAction SilentlyContinue) {
