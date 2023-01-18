@@ -9,14 +9,14 @@
 [string]$apiKey = ""
 #
 # Changes on every build
-[string]$Version = "0.0.7"
+[string]$Version = "0.0.8"
 [string]$PowerShellVersion = "5.1"
 [string]$Tags = '"Windows", "PowerShell", "ReturnUserProfile", "UserProfile", "DeleteUserProfile", "Support-Tools", "IT-Tools", "sysadmin-tools", "windows-user-folder", "windows-user-profile"'
 [string]$ProcessorArchitecture = ""
 [string]$LicenseUrl = "https://github.com/rstolpe/DeleteUserProfile/blob/main/LICENSE"
 [string]$ProjectUrl = "https://github.com/rstolpe/DeleteUserProfile"
 [string]$ReleaseNotesUrl = "https://github.com/rstolpe/DeleteUserProfile/releases"
-[string]$Description = "This module will help you to update your software on your Windows 10 and Windows 11 machines."
+[string]$Description = "This module will let you list or delete Windows user profile from both local and remote computers."
 [bool]$Publish = $false
 
 # Creating ArrayList for use later in the script

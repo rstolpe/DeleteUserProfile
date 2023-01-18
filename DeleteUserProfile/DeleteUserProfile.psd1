@@ -36,7 +36,7 @@
     RootModule = '.\DeleteUserProfile.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.0.7'
+    ModuleVersion = '0.0.8'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -54,7 +54,7 @@
     Copyright = '(c) 2023 Robin Stolpe. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description = 'This module will help you to update your software on your Windows 10 and Windows 11 machines.'
+    Description = 'This module will let you list or delete Windows user profile from both local and remote computers.'
 
     # Minimum version of the PowerShell engine required by this module
     PowerShellVersion = '5.1'
