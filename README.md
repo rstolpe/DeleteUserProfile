@@ -22,6 +22,7 @@ I have added the result from PSScriptAnalyzer in [test folder](https://github.co
 If you use this module on a remote computer you need to make sure that you have [WinRM](https://github.com/rstolpe/Guides/blob/main/Windows/WinRM_GPO.md) activated.
 
 # Links
+* [My PowerShell Collection](https://github.com/rstolpe/PSCollection)
 * [Webpage/Blog](https://www.stolpe.io)
 * [Twitter](https://twitter.com/rstolpes)
 * [LinkedIn](https://www.linkedin.com/in/rstolpe/)
