@@ -7,7 +7,7 @@ SYNOPSIS
     
     
 SYNTAX
-    Remove-RSUserProfile [[-ComputerName] <String>] [[-Delete] <String>] [-DeleteAll] [[-Excluded] <String>] [<CommonParameters>]
+    Remove-RSUserProfile [[-ComputerName] <String>] [[-Delete] <String>] [-DeleteAll] [[-Exclude] <String>] [<CommonParameters>]
     
     
 DESCRIPTION
@@ -43,7 +43,7 @@ PARAMETERS
         Accept pipeline input?       false
         Accept wildcard characters?  false
         
-    -Excluded <String>
+    -Exclude <String>
         
         Required?                    false
         Position?                    3
@@ -84,7 +84,7 @@ NOTES
     
     -------------------------- EXAMPLE 2 --------------------------
     
-    PS > Remove-RSUserProfile -Excluded "User1, User2" -DeleteAll
+    PS > Remove-RSUserProfile -Exclude "User1, User2" -DeleteAll
     # This will delete all of the user profiles except user profile User1 and User2 on the local computer
     
     
@@ -114,7 +114,7 @@ NOTES
     
     -------------------------- EXAMPLE 5 --------------------------
     
-    PS > Remove-RSUserProfile -ComputerName "Win11-test" -Excluded "User1, User2" -DeleteAll
+    PS > Remove-RSUserProfile -ComputerName "Win11-test" -Exclude "User1, User2" -DeleteAll
     # This will delete all of the user profiles except user profile User1 and User2 on the remote computer named "Win11-Test"
     
     

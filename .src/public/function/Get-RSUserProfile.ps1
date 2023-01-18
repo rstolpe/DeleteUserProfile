@@ -58,7 +58,7 @@
             Write-Output "`n== All profiles on $($Computer) ==`n"
             try {
                 Get-CimInstance -ComputerName $Computer -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Foreach-Object {
-                    if (-Not ($_.LocalPath.split('\')[-1] -in $Excluded)) {
+                    if (-Not ($_.LocalPath.split('\')[-1] -in $Exclude)) {
                         [PSCustomObject]@{
                             'UserName'               = $_.LocalPath.split('\')[-1]
                             'Profile path'           = $_.LocalPath

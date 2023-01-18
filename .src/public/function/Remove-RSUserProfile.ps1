@@ -62,7 +62,7 @@
         [Parameter(Mandatory = $false, HelpMessage = "Use if you want to delete all user profiles")]
         [switch]$DeleteAll = $false,
         [Parameter(Mandatory = $false, HelpMessage = "Enter name of user profiles that you want to exclude, multiple input are accepted if separated with ,")]
-        [string]$Excluded
+        [string]$Exclude
     )
 
     foreach ($Computer in $ComputerName.Split(",").Trim()) {
@@ -70,7 +70,7 @@
             $AllUserProfiles = Get-CimInstance -ComputerName $Computer -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Select-Object LocalPath, Loaded
             if ($DeleteAll -eq $True) {
                 foreach ($Profile in $($AllUserProfiles)) {
-                    if ($Profile.LocalPath.split('\')[-1] -in $ExcludedProfile) {
+                    if ($Profile.LocalPath.split('\')[-1] -in $Exclude) {
                         Write-Output "$($Profile.LocalPath.split('\')[-1]) are excluded so it wont be deleted, proceeding to next profile..."
                     }
                     else {

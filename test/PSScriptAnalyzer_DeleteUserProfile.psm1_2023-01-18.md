@@ -1,4 +1,16 @@
 ﻿
+Line                 : 77
+Column               : 17
+Message              : The parameter 'Exclude' has been declared but not used. 
+Extent               : $Exclude
+RuleName             : PSReviewUnusedParameter
+Severity             : Warning
+ScriptName           : DeleteUserProfile.psm1
+ScriptPath           : /Users/rstolpe/Dev/GitHub/DeleteUserProfile/DeleteUserProfile/DeleteUserProfile.psm1
+RuleSuppressionID    : Exclude
+SuggestedCorrections : 
+IsSuppressed         : False
+
 Line                 : 104
 Column               : 10
 Message              : Function 'Remove-RSUserProfile' has verb that could change system state. Therefore, the function has to support 'ShouldProcess'.
@@ -8,30 +20,6 @@ Severity             : Warning
 ScriptName           : DeleteUserProfile.psm1
 ScriptPath           : /Users/rstolpe/Dev/GitHub/DeleteUserProfile/DeleteUserProfile/DeleteUserProfile.psm1
 RuleSuppressionID    : 
-SuggestedCorrections : 
-IsSuppressed         : False
-
-Line                 : 77
-Column               : 17
-Message              : The parameter 'Excluded' has been declared but not used. 
-Extent               : $Excluded
-RuleName             : PSReviewUnusedParameter
-Severity             : Warning
-ScriptName           : DeleteUserProfile.psm1
-ScriptPath           : /Users/rstolpe/Dev/GitHub/DeleteUserProfile/DeleteUserProfile/DeleteUserProfile.psm1
-RuleSuppressionID    : Excluded
-SuggestedCorrections : 
-IsSuppressed         : False
-
-Line                 : 168
-Column               : 17
-Message              : The parameter 'Excluded' has been declared but not used. 
-Extent               : $Excluded
-RuleName             : PSReviewUnusedParameter
-Severity             : Warning
-ScriptName           : DeleteUserProfile.psm1
-ScriptPath           : /Users/rstolpe/Dev/GitHub/DeleteUserProfile/DeleteUserProfile/DeleteUserProfile.psm1
-RuleSuppressionID    : Excluded
 SuggestedCorrections : 
 IsSuppressed         : False
 
