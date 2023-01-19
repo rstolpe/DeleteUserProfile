@@ -67,7 +67,7 @@
                             'Is the profile active?' = $_.Loaded
                         }
                     }
-                } | Format-Table
+                }
             }
             catch {
                 Write-Error "$($PSItem.Exception)"
