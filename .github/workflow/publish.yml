@@ -13,5 +13,5 @@ jobs:
       - name: Publish
         env:
           NUGET_KEY: ${{ secrets.PSGALLERY }}
-        run: .\.src\publish.ps1
+        run: .\publish.ps1
         shell: pwsh
