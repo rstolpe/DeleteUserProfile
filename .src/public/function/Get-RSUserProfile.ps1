@@ -49,22 +49,22 @@
 
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory = $false, HelpMessage = "Enter computername on the computer that you to delete user profiles from, multiple names are supported")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter name of the computer or computers you want to collect user profiles from, multiple computername are supported.")]
         [string[]]$ComputerName = "localhost",
-        [Parameter(Mandatory = $false, HelpMessage = "Enter name of user profiles that you want to exclude, multiple names are supported")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter name of users you want to exclude, multiple usernames are supported.")]
         [string[]]$Exclude
     )
     foreach ($Computer in $ComputerName) {
         if (Test-WSMan -ComputerName $Computer -ErrorAction SilentlyContinue) {
-            Write-Output "`n== All profiles on $($Computer) ==`n"
+            Write-Output "`n== All profiles on $Computer ==`n"
             try {
                 Get-CimInstance -ComputerName $Computer -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Foreach-Object {
                     if (-Not ($_.LocalPath.split('\')[-1] -in $Exclude)) {
                         [PSCustomObject]@{
-                            'UserName'               = $_.LocalPath.split('\')[-1]
-                            'Profile path'           = $_.LocalPath
-                            'Last used'              = ($_.LastUseTime -as [DateTime]).ToString("yyyy-MM-dd HH:mm")
-                            'Is the profile active?' = $_.Loaded
+                            UserName       = $_.LocalPath.split('\')[-1]
+                            Profile_path   = $_.LocalPath
+                            Last_used      = ($_.LastUseTime -as [DateTime]).ToString("yyyy-MM-dd HH:mm")
+                            Active_Profile = $_.Loaded
                         }
                     }
                 }
@@ -75,7 +75,7 @@
             }
         }
         else {
-            Write-Output "$($Computer) are not connected to the network or it's trouble with WinRM"
+            Write-Output "$Computer are not connected to the network or it's trouble with WinRM"
         }
     }
 }

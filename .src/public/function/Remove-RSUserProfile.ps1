@@ -94,15 +94,15 @@
             }
             elseif ($DeleteAll -eq $false -and $null -ne $Delete) {
                 foreach ($user in $Delete) {
-                    if ("$env:SystemDrive\Users\$($user)" -in $AllUserProfiles.LocalPath) {
+                    if ("$env:SystemDrive\Users\$user" -in $AllUserProfiles.LocalPath) {
                         if ($Profile.LocalPath.split('\')[-1] -in $Exclude) {
                             Write-Output "$($Profile.LocalPath.split('\')[-1]) are excluded so it wont be deleted..."
                         }
                         else {
                             try {
-                                Write-Output "Deleting user profile $($user)..."
-                                Get-CimInstance -ComputerName $Computer Win32_UserProfile | Where-Object { $_.LocalPath -eq "$env:SystemDrive\Users\$($user)" } | Remove-CimInstance
-                                Write-Output "The user profile $($user) are now deleted!"
+                                Write-Output "Deleting user profile $user..."
+                                Get-CimInstance -ComputerName $Computer Win32_UserProfile | Where-Object { $_.LocalPath -eq "$env:SystemDrive\Users\$user" } | Remove-CimInstance
+                                Write-Output "The user profile $user are now deleted!"
                             }
                             catch {
                                 Write-Error "$($PSItem.Exception)"
@@ -111,14 +111,14 @@
                         }
                     }
                     else {
-                        Write-Warning "$($user) did not have any user profile on $($Computer)!"
+                        Write-Warning "$user did not have any user profile on $Computer!"
                         Continue
                     }
                 }
             }
         }
         else {
-            Write-Output "$($Computer) are not connected to the network or it's trouble with WinRM"
+            Write-Output "$Computer are not connected to the network or it's trouble with WinRM"
         }
     }
 }
