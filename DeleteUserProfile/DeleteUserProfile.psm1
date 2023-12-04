@@ -11,16 +11,9 @@
         The name of the remote computer you want to display all of the user profiles from. If you want to use it on a local computer you don't need to fill this one out.
         You can add multiple computers like this: -ComputerName "Win11-Test", "Win10"
 
-        .PARAMETER Exclude
-        All of the usernames you write here will be excluded from the script and they will not show up, it's a array so you can add multiple users like this: -Exclude "User1", "User2"
-
         .EXAMPLE
         Get-RSUserProfile
         # This will return all of the user profiles saved on the local machine
-
-        .EXAMPLE
-        Get-RSUserProfile -Exclude "Frank", "rstolpe"
-        # This will return all of the user profiles saved on the local machine except user profiles that are named Frank and rstolpe
 
         .EXAMPLE
         Get-RSUserProfile -ComputerName "Win11-Test"
@@ -29,10 +22,6 @@
         .EXAMPLE
         Get-RSUserProfile -ComputerName "Win11-Test", "Win10"
         # This will return all of the user profiles saved on the remote computers named Win11-Test and Win10
-
-        .EXAMPLE
-        Get-RSUserProfile -ComputerName "Win11-Test" -Exclude "Frank", "rstolpe"
-        # This will return all of the user profiles saved on the remote computer "Win11-Test" except user profiles that are named Frank and rstolpe
 
         .LINK
         https://github.com/rstolpe/DeleteUserProfile/blob/main/README.md
@@ -50,35 +39,55 @@
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $false, HelpMessage = "Enter name of the computer or computers you want to collect user profiles from, multiple computername are supported.")]
-        [string[]]$ComputerName = "localhost",
-        [Parameter(Mandatory = $false, HelpMessage = "Enter name of users you want to exclude, multiple usernames are supported.")]
-        [string[]]$Exclude
+        [string[]]$ComputerName = "localhost"
     )
-    foreach ($Computer in $ComputerName) {
-        if (Test-WSMan -ComputerName $Computer -ErrorAction SilentlyContinue) {
-            Write-Output "`n== All profiles on $Computer ==`n"
+    
+    foreach ($_computer in $ComputerName) {
+        if (Test-WSMan -ComputerName $_computer -ErrorAction SilentlyContinue) {
+            Write-Output "`n=== All profiles on $_computer ===`n"
+
             try {
-                Get-CimInstance -ComputerName $Computer -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Foreach-Object {
-                    if (-Not ($_.LocalPath.split('\')[-1] -in $Exclude)) {
-                        [PSCustomObject]@{
-                            UserName       = $_.LocalPath.split('\')[-1]
-                            Profile_path   = $_.LocalPath
-                            Last_used      = ($_.LastUseTime -as [DateTime]).ToString("yyyy-MM-dd HH:mm")
-                            Active_Profile = $_.Loaded
+                # Collect all user profiles
+                $GetUserData = Get-CimInstance -ComputerName $_computer -className Win32_UserProfile | Where-Object -Not Special | Select-Object LocalPath, LastUseTime, Loaded | Sort-Object -Descending -Property LastUseTime
+                $UserProfileData = foreach ($_profile in $GetUserData) {
+
+                    # Calculate how long it was the profile was used
+                    if (-Not([string]::IsNullOrEmpty($_profile.LastUseTime))) {
+                        $NotUsed = NEW-TIMESPAN -Start $_profile.LastUseTime -End (Get-Date) | Select-Object days, hours, Minutes  | Foreach-Object {
+                            [PSCustomObject]@{
+                                days    = if ($Null -eq $_.Days -or $_.Days -eq "0") { $Null } else { $_.Days }
+                                hours   = if ($Null -eq $_.Hours -or $_.Hours -eq "0") { $Null } else { $_.Hours }
+                                minutes = if ($Null -eq $_.Minutes -or $_.Minutes -eq "0") { $Null } else { $_.Minutes }
+                            }
                         }
                     }
+
+                    [PSCustomObject]@{
+                        ProfileUserName = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath.split('\')[-1] }
+                        ProfilePath     = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath }
+                        LastUsed        = if ($null -ne $_profile.LastUseTime) { ($_profile.LastUseTime -as [DateTime]).ToString("yyyy-MM-dd HH:mm") }
+                        ProfileLoaded   = if ($null -ne $_profile.Loaded) { $_profile.Loaded }
+                        NotUsed         = if (-Not([string]::IsNullOrEmpty($NotUsed))) { $NotUsed } else { "N/A" }
+                    }
+                }
+
+                if ($null -ne $UserProfileData) {
+                    return $UserProfileData
+                }
+                else {
+                    Write-Output "No user profiles found on $_computer"
                 }
             }
             catch {
-                Write-Error "$($PSItem.Exception)"
-                break
+                Write-Output "$($PSItem.Exception.Message)"
             }
         }
         else {
-            Write-Output "$Computer are not connected to the network or it's trouble with WinRM"
+            Write-Output "$_computer are not connected to the network or it's trouble with WinRM"
         }
     }
 }
+
 Function Remove-RSUserProfile {
     <#
         .SYNOPSIS

@@ -1,7 +1,7 @@
 ﻿<#
     MIT License
 
-    Copyright (C) 2023 Robin Stolpe.
+    Copyright (C) 2024 Robin Stolpe.
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,7 @@
     RootModule        = '.\DeleteUserProfile.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.1.3'
+    ModuleVersion     = '0.1.6'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -48,10 +48,10 @@
     Author            = 'Robin Stolpe'
 
     # Company or vendor of this module
-    CompanyName       = 'Stolpe.io'
+    CompanyName       = 'Robin Stolpe'
 
     # Copyright statement for this module
-    Copyright         = '(c) 2023 Robin Stolpe. All rights reserved.'
+    Copyright         = '(c) 2024 Robin Stolpe. All rights reserved.'
 
     # Description of the functionality provided by this module
     Description       = 'This module will let you list or delete Windows user profile from both local and remote computers.'
