@@ -26,15 +26,6 @@ PARAMETERS
         Accept pipeline input?       false
         Accept wildcard characters?  false
         
-    -Exclude <String[]>
-        All of the usernames you write here will be excluded from the script and they will not show up, it's a array so you can add multiple users like this: -Exclude "User1", "User2"
-        
-        Required?                    false
-        Position?                    2
-        Default value                
-        Accept pipeline input?       false
-        Accept wildcard characters?  false
-        
     <CommonParameters>
         This cmdlet supports the common parameters: Verbose, Debug,
         ErrorAction, ErrorVariable, WarningAction, WarningVariable,
@@ -61,48 +52,17 @@ NOTES
     PS > Get-RSUserProfile
     # This will return all of the user profiles saved on the local machine
     
-    
-    
-    
-    
-    
+       
     -------------------------- EXAMPLE 2 --------------------------
-    
-    PS > Get-RSUserProfile -Exclude "Frank", "rstolpe"
-    # This will return all of the user profiles saved on the local machine except user profiles that are named Frank and rstolpe
-    
-    
-    
-    
-    
-    
-    -------------------------- EXAMPLE 3 --------------------------
     
     PS > Get-RSUserProfile -ComputerName "Win11-Test"
     # This will return all of the user profiles saved on the remote computer "Win11-test"
     
-    
-    
-    
-    
-    
-    -------------------------- EXAMPLE 4 --------------------------
+       
+    -------------------------- EXAMPLE 3 --------------------------
     
     PS > Get-RSUserProfile -ComputerName "Win11-Test", "Win10"
     # This will return all of the user profiles saved on the remote computers named Win11-Test and Win10
-    
-    
-    
-    
-    
-    
-    -------------------------- EXAMPLE 5 --------------------------
-    
-    PS > Get-RSUserProfile -ComputerName "Win11-Test" -Exclude "Frank", "rstolpe"
-    # This will return all of the user profiles saved on the remote computer "Win11-Test" except user profiles that are named Frank and rstolpe
-    
-    
-    
     
     
     
