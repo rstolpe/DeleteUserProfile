@@ -44,7 +44,7 @@
     
     foreach ($_computer in $ComputerName) {
         if (Test-WSMan -ComputerName $_computer -ErrorAction SilentlyContinue) {
-            Write-Output "`n=== All profiles on $_computer ===`n"
+            Write-Output "`n=== All profiles on $($_computer) ===`n"
 
             try {
                 # Collect all user profiles
@@ -75,7 +75,7 @@
                     return $UserProfileData
                 }
                 else {
-                    Write-Output "No user profiles found on $_computer"
+                    Write-Output "No user profiles found on $($_computer)"
                 }
             }
             catch {
@@ -83,7 +83,7 @@
             }
         }
         else {
-            Write-Output "$_computer are not connected to the network or it's trouble with WinRM"
+            Write-Output "$($_computer) are not connected to the network or it's trouble with WinRM"
         }
     }
 }
