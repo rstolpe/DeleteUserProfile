@@ -165,19 +165,19 @@ Function Remove-RSUserProfile {
                         $UserNameFromPath = $_profile.LocalPath.split('\')[-1]
 
                         # Starting threadjob to speed things up
-                        Start-ThreadJob -Name $_profile -ThrottleLimit 50 -ScriptBlock {
+                        Start-ThreadJob -Name $UserNameFromPath -ThrottleLimit 50 -ScriptBlock {
                             if ($Using:UserNameFromPath -in $Using:Exclude) {
                                 Write-Output "$($Using:UserNameFromPath) are excluded so it wont be deleted, proceeding to next profile..."
                             }
                             else {
-                                if ($_profile.Loaded -eq $true) {
+                                if ($Using:_profile.Loaded -eq $true) {
                                     Write-Warning "$($Using:UserNameFromPath) user profile is loaded, can't delete it so skipping it!"
                                     Continue
                                 }
                                 else {
                                     try {
                                         Write-Output "Deleting user profile $($Using:UserNameFromPath)..."
-                                        $_profile | Remove-CimInstance
+                                        $Using:_profile | Remove-CimInstance
                                         Write-Output "User profile $($Using:UserNameFromPath) are now deleted!"
                                     }
                                     catch {
@@ -195,37 +195,43 @@ Function Remove-RSUserProfile {
                 }
                 # if you don't want to delete all profiles but just one or more
                 elseif ($All -eq $false -and $null -ne $Delete) {
-                    foreach ($_profile in $Delete) {
-                        if ("$env:SystemDrive\Users\$_profile" -in $GetAllProfiles.LocalPath) {
-                            if ($_profile -in $Exclude) {
-                                Write-Output "$($_profile ) are excluded so it wont be deleted..."
+                    $JobDelete = foreach ($_profile in $Delete) {
+                        Start-ThreadJob -Name $_profile -ThrottleLimit 50 -ScriptBlock {
+                            if ("$($env:SystemDrive)\Users\$($Using:_profile)" -in $Using:GetAllProfiles.LocalPath) {
+                                if ($Using:_profile -in $Using:Exclude) {
+                                    Write-Output "$($Using:_profile) are excluded so it wont be deleted..."
+                                }
+                                else {
+                                    try {
+                                        Write-Output "Deleting user profile $($Using:_profile)..."
+                                        $Using:GetAllProfiles | Remove-CimInstance
+                                        Write-Output "The user profile $($Using:_profile) are now deleted!"
+                                    }
+                                    catch {
+                                        Write-Error "$($PSItem.Exception)"
+                                        continue
+                                    }
+                                }
                             }
                             else {
-                                try {
-                                    Write-Output "Deleting user profile $_profile ..."
-                                    $GetAllProfiles | Remove-CimInstance
-                                    Write-Output "The user profile $_profile  are now deleted!"
-                                }
-                                catch {
-                                    Write-Error "$($PSItem.Exception)"
-                                    continue
-                                }
+                                Write-Warning "$($Using:_profile) did not have any user profile on $($Using:_computer)!"
+                                continue
                             }
                         }
-                        else {
-                            Write-Warning "$_profile did not have any user profile on $_computer!"
-                            continue
-                        }
                     }
+
+                    $ReturnProfileJob = Receive-Job $JobDelete -AutoRemoveJob -Wait
+                    $CimSession | Remove-CimSession
+                    $ReturnProfileJob
                 }
             }
             else {
-                Write-Output "No user profiles found on $_computer"
+                Write-Output "No user profiles found on $($_computer)"
                 continue
             }
         }
         else {
-            Write-Output "$_computer are not connected to the network or it's trouble with WinRM"
+            Write-Output "$($_computer) are not connected to the network or it's trouble with WinRM"
             continue
         }
     }
