@@ -40,53 +40,61 @@
         [Parameter(Mandatory = $false, HelpMessage = "Enter name of the computer or computers you want to collect user profiles from, multiple computername are supported.")]
         [string[]]$ComputerName = "localhost"
     )
+
+    Write-Output "`n=== Starting to collect all profiles ===`n"
     
-    foreach ($_computer in $ComputerName) {
-        if (Test-WSMan -ComputerName $_computer -ErrorAction SilentlyContinue) {
-            Write-Output "`n=== All profiles on $($_computer) ===`n"
+    $JobGetProfile = foreach ($_computer in $ComputerName) {
+        Start-ThreadJob -Name $_computer -ThrottleLimit 50 -ScriptBlock {
+            if (Test-WSMan -ComputerName $Using:_computer -ErrorAction SilentlyContinue) {
+                Write-Output "`n=== All profiles on $($Using:_computer) ===`n"
 
-            try {
-                # Open CIM Session
-                $CimSession = New-CimSession -ComputerName $_computer
-                # Collect all user profiles
-                $GetUserData = Get-CimInstance -CimSession $CimSession -className Win32_UserProfile | Where-Object { $_.Special -eq $false } | Select-Object LocalPath, LastUseTime, Loaded | Sort-Object -Descending -Property LastUseTime
-                $UserProfileData = foreach ($_profile in $GetUserData) {
+                try {
+                    # Open CIM Session
+                    $CimSession = New-CimSession -ComputerName $Using:_computer
+                    # Collect all user profiles
+                    $GetUserData = Get-CimInstance -CimSession $CimSession -className Win32_UserProfile | Where-Object { $_.Special -eq $false } | Select-Object LocalPath, LastUseTime, Loaded | Sort-Object -Descending -Property LastUseTime
+                    $UserProfileData = foreach ($_profile in $GetUserData) {
 
-                    # Calculate how long it was the profile was used
-                    if (-Not([string]::IsNullOrEmpty($_profile.LastUseTime))) {
-                        $NotUsed = NEW-TIMESPAN -Start $_profile.LastUseTime -End (Get-Date) | Select-Object days, hours, Minutes  | Foreach-Object {
-                            [PSCustomObject]@{
-                                days    = if ($Null -eq $_.Days -or $_.Days -eq "0") { $Null } else { $_.Days }
-                                hours   = if ($Null -eq $_.Hours -or $_.Hours -eq "0") { $Null } else { $_.Hours }
-                                minutes = if ($Null -eq $_.Minutes -or $_.Minutes -eq "0") { $Null } else { $_.Minutes }
+                        # Calculate how long it was the profile was used
+                        if (-Not([string]::IsNullOrEmpty($_profile.LastUseTime))) {
+                            $NotUsed = NEW-TIMESPAN -Start $_profile.LastUseTime -End (Get-Date) | Select-Object days, hours, Minutes  | Foreach-Object {
+                                [PSCustomObject]@{
+                                    days    = if ($Null -eq $_.Days -or $_.Days -eq "0") { $Null } else { $_.Days }
+                                    hours   = if ($Null -eq $_.Hours -or $_.Hours -eq "0") { $Null } else { $_.Hours }
+                                    minutes = if ($Null -eq $_.Minutes -or $_.Minutes -eq "0") { $Null } else { $_.Minutes }
+                                }
                             }
+                        }
+
+                        [PSCustomObject]@{
+                            ProfileUserName = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath.split('\')[-1] }
+                            ProfilePath     = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath }
+                            LastUsed        = if ($null -ne $_profile.LastUseTime) { ($_profile.LastUseTime -as [DateTime]).ToString("yyyy-MM-dd HH:mm") }
+                            ProfileLoaded   = if ($null -ne $_profile.Loaded) { $_profile.Loaded }
+                            NotUsed         = if (-Not([string]::IsNullOrEmpty($NotUsed))) { $NotUsed } else { "N/A" }
                         }
                     }
 
-                    [PSCustomObject]@{
-                        ProfileUserName = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath.split('\')[-1] }
-                        ProfilePath     = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath }
-                        LastUsed        = if ($null -ne $_profile.LastUseTime) { ($_profile.LastUseTime -as [DateTime]).ToString("yyyy-MM-dd HH:mm") }
-                        ProfileLoaded   = if ($null -ne $_profile.Loaded) { $_profile.Loaded }
-                        NotUsed         = if (-Not([string]::IsNullOrEmpty($NotUsed))) { $NotUsed } else { "N/A" }
+                    if ($null -ne $UserProfileData) {
+                        return $UserProfileData
+                    }
+                    else {
+                        Write-Output "No user profiles found on $($Using:_computer)"
                     }
                 }
-
-                if ($null -ne $UserProfileData) {
-                    return $UserProfileData
-                }
-                else {
-                    Write-Output "No user profiles found on $($_computer)"
+                catch {
+                    Write-Output "$($PSItem.Exception.Message)"
                 }
             }
-            catch {
-                Write-Output "$($PSItem.Exception.Message)"
+            else {
+                Write-Output "$($Using:_computer) are not connected to the network or it's trouble with WinRM"
             }
-        }
-        else {
-            Write-Output "$($_computer) are not connected to the network or it's trouble with WinRM"
         }
     }
+
+    $ReturnProfiles = Receive-Job $JobGetProfile -AutoRemoveJob -Wait
+    $CimSession | Remove-CimSession
+    $ReturnProfiles
 }
 
 Function Remove-RSUserProfile {
