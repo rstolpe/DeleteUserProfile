@@ -47,8 +47,10 @@
             Write-Output "`n=== All profiles on $($_computer) ===`n"
 
             try {
+                # Open CIM Session
+                $CimSession = New-CimSession -ComputerName $_computer
                 # Collect all user profiles
-                $GetUserData = Get-CimInstance -ComputerName $_computer -className Win32_UserProfile | Where-Object -Not Special | Select-Object LocalPath, LastUseTime, Loaded | Sort-Object -Descending -Property LastUseTime
+                $GetUserData = Get-CimInstance -CimSession $CimSession -className Win32_UserProfile | Where-Object { $_.Special -eq $false } | Select-Object LocalPath, LastUseTime, Loaded | Sort-Object -Descending -Property LastUseTime
                 $UserProfileData = foreach ($_profile in $GetUserData) {
 
                     # Calculate how long it was the profile was used
@@ -156,8 +158,10 @@ Function Remove-RSUserProfile {
 
     foreach ($_computer in $Computername) {
         if (Test-WSMan -ComputerName $_computer -ErrorAction SilentlyContinue) {
+            # Open CIM Session
+            $CimSession = New-CimSession -ComputerName $_computer
             # Collecting all user profiles on the computer
-            $GetAllProfiles = Get-CimInstance -ComputerName $_computer -ClassName Win32_UserProfile | Where-Object { $_.Special -eq $false }
+            $GetAllProfiles = Get-CimInstance -CimSession $CimSession -ClassName Win32_UserProfile | Where-Object { $_.Special -eq $false }
             if ($null -ne $GetAllProfiles) {
                 # Deleting all user profiles on the computer besides them that are special or loaded
                 if ($All -eq $true) {
