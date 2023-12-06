@@ -157,62 +157,68 @@ Function Remove-RSUserProfile {
     foreach ($_computer in $Computername) {
         if (Test-WSMan -ComputerName $_computer -ErrorAction SilentlyContinue) {
             # Collecting all user profiles on the computer
-            $GetUserProfiles = Get-CimInstance -ComputerName $_computer -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Select-Object LocalPath, Loaded
-            
-            # Deleting all user profiles on the computer besides them that are special or loaded
-            if ($All -eq $true) {
-                foreach ($_profile in $GetUserProfiles) {
-                    $UserNameFromPath = $_profile.LocalPath.split('\')[-1]
-                    if ($UserNameFromPath -in $Exclude) {
-                        Write-Output "$($UserNameFromPath) are excluded so it wont be deleted, proceeding to next profile..."
-                    }
-                    else {
-                        if ($UserNameFromPath.Loaded -eq "true") {
-                            Write-Warning "$($UserNameFromPath) user profile is loaded, can't delete it so skipping it!"
-                            Continue
+            $GetAllProfiles = Get-CimInstance -ComputerName $_computer -ClassName Win32_UserProfile | Where-Object { $_.Special -eq $false }
+            if ($null -ne $GetAllProfiles) {
+                # Deleting all user profiles on the computer besides them that are special or loaded
+                if ($All -eq $true) {
+                    foreach ($_profile in $GetAllProfiles) {
+                        $UserNameFromPath = $_profile.LocalPath.split('\')[-1]
+                        if ($UserNameFromPath -in $Exclude) {
+                            Write-Output "$($UserNameFromPath) are excluded so it wont be deleted, proceeding to next profile..."
                         }
                         else {
-                            try {
-                                Write-Output "Deleting user profile $($UserNameFromPath)..."
-                                Get-CimInstance -ComputerName $_computer Win32_UserProfile | Where-Object { $_.LocalPath -eq $_profile.LocalPath } | Remove-CimInstance
-                                Write-Output "User profile $($UserNameFromPath) are now deleted!"
+                            if ($UserNameFromPath.Loaded -eq "true") {
+                                Write-Warning "$($UserNameFromPath) user profile is loaded, can't delete it so skipping it!"
+                                Continue
                             }
-                            catch {
-                                Write-Error "$($PSItem.Exception)"
-                                continue
+                            else {
+                                try {
+                                    Write-Output "Deleting user profile $($UserNameFromPath)..."
+                                    $GetUserProfiles | Remove-CimInstance
+                                    Write-Output "User profile $($UserNameFromPath) are now deleted!"
+                                }
+                                catch {
+                                    Write-Error "$($PSItem.Exception)"
+                                    continue
+                                }
                             }
+                        }
+                    }
+                }
+                # if you don't want to delete all profiles but just one or more
+                elseif ($All -eq $false -and $null -ne $Delete) {
+                    foreach ($_profile in $Delete) {
+                        if ("$env:SystemDrive\Users\$_profile" -in $GetAllProfiles.LocalPath) {
+                            if ($_profile -in $Exclude) {
+                                Write-Output "$($_profile ) are excluded so it wont be deleted..."
+                            }
+                            else {
+                                try {
+                                    Write-Output "Deleting user profile $_profile ..."
+                                    $GetAllProfiles | Remove-CimInstance
+                                    Write-Output "The user profile $_profile  are now deleted!"
+                                }
+                                catch {
+                                    Write-Error "$($PSItem.Exception)"
+                                    continue
+                                }
+                            }
+                        }
+                        else {
+                            Write-Warning "$_profile did not have any user profile on $_computer!"
+                            continue
                         }
                     }
                 }
             }
-            # if you don't want to delete all profiles but just one or more
-            elseif ($All -eq $false -and $null -ne $Delete) {
-                foreach ($_profile in $Delete) {
-                    if ("$env:SystemDrive\Users\$_profile" -in $GetUserProfiles.LocalPath) {
-                        if ($_profile -in $Exclude) {
-                            Write-Output "$($_profile ) are excluded so it wont be deleted..."
-                        }
-                        else {
-                            try {
-                                Write-Output "Deleting user profile $_profile ..."
-                                Get-CimInstance -ComputerName $_computer Win32_UserProfile | Where-Object { $_.LocalPath -eq "$env:SystemDrive\Users\$_profile" } | Remove-CimInstance
-                                Write-Output "The user profile $_profile  are now deleted!"
-                            }
-                            catch {
-                                Write-Error "$($PSItem.Exception)"
-                                Continue
-                            }
-                        }
-                    }
-                    else {
-                        Write-Warning "$_profile did not have any user profile on $_computer!"
-                        Continue
-                    }
-                }
+            else {
+                Write-Output "No user profiles found on $_computer"
+                continue
             }
         }
         else {
             Write-Output "$_computer are not connected to the network or it's trouble with WinRM"
+            continue
         }
     }
 }
