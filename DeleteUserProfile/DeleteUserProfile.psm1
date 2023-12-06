@@ -167,14 +167,14 @@ Function Remove-RSUserProfile {
                             Write-Output "$($UserNameFromPath) are excluded so it wont be deleted, proceeding to next profile..."
                         }
                         else {
-                            if ($UserNameFromPath.Loaded -eq "true") {
+                            if ($_profile.Loaded -eq "true") {
                                 Write-Warning "$($UserNameFromPath) user profile is loaded, can't delete it so skipping it!"
                                 Continue
                             }
                             else {
                                 try {
                                     Write-Output "Deleting user profile $($UserNameFromPath)..."
-                                    $GetUserProfiles | Remove-CimInstance
+                                    $_profile | Remove-CimInstance
                                     Write-Output "User profile $($UserNameFromPath) are now deleted!"
                                 }
                                 catch {
