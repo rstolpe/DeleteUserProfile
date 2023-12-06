@@ -97,7 +97,7 @@ Function Remove-RSUserProfile {
         Let you delete user profiles from a local computer or remote computer, you can also delete all of the user profiles. You can also exclude profiles.
         If the profile are loaded you can't delete it. The special Windows profiles are excluded
 
-        .PARAMETER ComputerName
+        .PARAMETER Computername
         The name of the remote computer you want to display all of the user profiles from. If you want to use it on a local computer you don't need to fill this one out.
 
         .PARAMETER Delete
@@ -145,16 +145,16 @@ Function Remove-RSUserProfile {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $false, HelpMessage = "Enter computername on the computer that you to delete user profiles from, multiple names are supported")]
-        [string[]]$ComputerName = "localhost",
+        [string[]]$Computername = "localhost",
         [Parameter(Mandatory = $false, HelpMessage = "Enter the name of the user profiles that you want to delete, multiple names are supported")]
-        [string[]]$Username,
+        [string[]]$Delete,
         [Parameter(Mandatory = $false, HelpMessage = "Use this switch if you want to delete all user profiles on the computer")]
         [switch]$All = $false,
         [Parameter(Mandatory = $false, HelpMessage = "Enter username of the user profiles that you want to exclude, multiple names are supported")]
         [string[]]$Exclude
     )
 
-    foreach ($_computer in $ComputerName) {
+    foreach ($_computer in $Computername) {
         if (Test-WSMan -ComputerName $_computer -ErrorAction SilentlyContinue) {
             # Collecting all user profiles on the computer
             $GetUserProfiles = Get-CimInstance -ComputerName $_computer -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Select-Object LocalPath, Loaded
@@ -189,14 +189,14 @@ Function Remove-RSUserProfile {
             elseif ($All -eq $false -and $null -ne $Delete) {
                 foreach ($_profile in $Delete) {
                     if ("$env:SystemDrive\Users\$_profile" -in $GetUserProfiles.LocalPath) {
-                        if ($Profile.LocalPath.split('\')[-1] -in $Exclude) {
-                            Write-Output "$($Profile.LocalPath.split('\')[-1]) are excluded so it wont be deleted..."
+                        if ($_profile -in $Exclude) {
+                            Write-Output "$($_profile ) are excluded so it wont be deleted..."
                         }
                         else {
                             try {
-                                Write-Output "Deleting user profile $_profile..."
+                                Write-Output "Deleting user profile $_profile ..."
                                 Get-CimInstance -ComputerName $_computer Win32_UserProfile | Where-Object { $_.LocalPath -eq "$env:SystemDrive\Users\$_profile" } | Remove-CimInstance
-                                Write-Output "The user profile $_profile are now deleted!"
+                                Write-Output "The user profile $_profile  are now deleted!"
                             }
                             catch {
                                 Write-Error "$($PSItem.Exception)"
