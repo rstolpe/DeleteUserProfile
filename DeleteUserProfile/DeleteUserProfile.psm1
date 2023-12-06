@@ -161,29 +161,37 @@ Function Remove-RSUserProfile {
             if ($null -ne $GetAllProfiles) {
                 # Deleting all user profiles on the computer besides them that are special or loaded
                 if ($All -eq $true) {
-                    foreach ($_profile in $GetAllProfiles) {
+                    $JobDelete = foreach ($_profile in $GetAllProfiles) {
                         $UserNameFromPath = $_profile.LocalPath.split('\')[-1]
-                        if ($UserNameFromPath -in $Exclude) {
-                            Write-Output "$($UserNameFromPath) are excluded so it wont be deleted, proceeding to next profile..."
-                        }
-                        else {
-                            if ($_profile.Loaded -eq "true") {
-                                Write-Warning "$($UserNameFromPath) user profile is loaded, can't delete it so skipping it!"
-                                Continue
+
+                        # Starting threadjob to speed things up
+                        Start-ThreadJob -Name $_profile -ThrottleLimit 50 -ScriptBlock {
+                            if ($Using:UserNameFromPath -in $Using:Exclude) {
+                                Write-Output "$($Using:UserNameFromPath) are excluded so it wont be deleted, proceeding to next profile..."
                             }
                             else {
-                                try {
-                                    Write-Output "Deleting user profile $($UserNameFromPath)..."
-                                    $_profile | Remove-CimInstance
-                                    Write-Output "User profile $($UserNameFromPath) are now deleted!"
+                                if ($_profile.Loaded -eq $true) {
+                                    Write-Warning "$($Using:UserNameFromPath) user profile is loaded, can't delete it so skipping it!"
+                                    Continue
                                 }
-                                catch {
-                                    Write-Error "$($PSItem.Exception)"
-                                    continue
+                                else {
+                                    try {
+                                        Write-Output "Deleting user profile $($Using:UserNameFromPath)..."
+                                        $_profile | Remove-CimInstance
+                                        Write-Output "User profile $($Using:UserNameFromPath) are now deleted!"
+                                    }
+                                    catch {
+                                        Write-Error "$($PSItem.Exception)"
+                                        continue
+                                    }
                                 }
                             }
                         }
                     }
+
+                    $ReturnProfileJob = Receive-Job $JobDelete -AutoRemoveJob -Wait
+                    $CimSession | Remove-CimSession
+                    $ReturnProfileJob
                 }
                 # if you don't want to delete all profiles but just one or more
                 elseif ($All -eq $false -and $null -ne $Delete) {
