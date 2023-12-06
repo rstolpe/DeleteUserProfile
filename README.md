@@ -9,8 +9,6 @@
 This module will let you show all of the user profiles that are saved on a local or remote computer, you can also delete one specific user profile or all of the profiles.  
 You can also return the user profiles from multiple computers at the same time.  
 The special windows profiles are excluded.  
-  
-I have added the result from PSScriptAnalyzer in [test folder](https://github.com/rstolpe/DeleteUserProfile/tree/main/test) 
 
 ## This module will do the following
 - Return all of the user profiles from a remote or local computer
@@ -25,7 +23,6 @@ If you use this module on a remote computer you need to make sure that you have 
 
 # Links
 * [My PowerShell Collection](https://github.com/rstolpe/PSCollection)
-* [Webpage/Blog](https://www.stolpe.io)
 * [Twitter](https://twitter.com/rstolpes)
 * [LinkedIn](https://www.linkedin.com/in/rstolpe/)
 * [PowerShell Gallery](https://www.powershellgallery.com/profiles/rstolpe)
@@ -47,7 +44,7 @@ Install-Module -Name DeleteUserProfile -Scope AllUsers -Force
 
 ## Example
 ### Get-RSUserProfile
-If you want to use this on a remote computer just add the parameter ```-ComputerName <COMPUTERNAME>``` in the commands below.  
+If you want to use this on a remote computer just add the parameter ```-ComputerName {COMPUTERNAME}``` in the commands below.  
   
 ```
 Get-RSUserProfile
