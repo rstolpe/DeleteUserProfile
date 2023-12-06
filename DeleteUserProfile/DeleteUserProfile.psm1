@@ -138,7 +138,6 @@ Function Remove-RSUserProfile {
         Mail:           robin@stolpe.io
         Twitter:        https://twitter.com/rstolpes
         Linkedin:       https://www.linkedin.com/in/rstolpe/
-        Website/Blog:   https://stolpe.io
         GitHub:         https://github.com/rstolpe
         PSGallery:      https://www.powershellgallery.com/profiles/rstolpe
     #>
@@ -157,22 +156,26 @@ Function Remove-RSUserProfile {
 
     foreach ($_computer in $ComputerName) {
         if (Test-WSMan -ComputerName $_computer -ErrorAction SilentlyContinue) {
+            # Collecting all user profiles on the computer
             $GetUserProfiles = Get-CimInstance -ComputerName $_computer -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Select-Object LocalPath, Loaded
+            
+            # Deleting all user profiles on the computer besides them that are special or loaded
             if ($All -eq $true) {
-                foreach ($_profile in $($GetUserProfiles)) {
-                    if ($_profile.LocalPath.split('\')[-1] -in $Exclude) {
-                        Write-Output "$($Profile.LocalPath.split('\')[-1]) are excluded so it wont be deleted, proceeding to next profile..."
+                foreach ($_profile in $GetUserProfiles) {
+                    $UserNameFromPath = $_profile.LocalPath.split('\')[-1]
+                    if ($UserNameFromPath -in $Exclude) {
+                        Write-Output "$($UserNameFromPath) are excluded so it wont be deleted, proceeding to next profile..."
                     }
                     else {
-                        if ($_profile.Loaded -eq "true") {
-                            Write-Warning "The user profile $($_profile.LocalPath.split('\')[-1]) is loaded, can't delete it so skipping it!"
+                        if ($UserNameFromPath.Loaded -eq "true") {
+                            Write-Warning "$($UserNameFromPath) user profile is loaded, can't delete it so skipping it!"
                             Continue
                         }
                         else {
                             try {
-                                Write-Output "Deleting user profile $($_profile.LocalPath.split('\')[-1])..."
+                                Write-Output "Deleting user profile $($UserNameFromPath)..."
                                 Get-CimInstance -ComputerName $_computer Win32_UserProfile | Where-Object { $_.LocalPath -eq $_profile.LocalPath } | Remove-CimInstance
-                                Write-Output "The user profile $($_profile.LocalPath.split('\')[-1]) are now deleted!"
+                                Write-Output "User profile $($UserNameFromPath) are now deleted!"
                             }
                             catch {
                                 Write-Error "$($PSItem.Exception)"
@@ -182,6 +185,7 @@ Function Remove-RSUserProfile {
                     }
                 }
             }
+            # if you don't want to delete all profiles but just one or more
             elseif ($All -eq $false -and $null -ne $Delete) {
                 foreach ($_profile in $Delete) {
                     if ("$env:SystemDrive\Users\$_profile" -in $GetUserProfiles.LocalPath) {
