@@ -41,20 +41,19 @@
         [Parameter(Mandatory = $false, HelpMessage = "Enter name of the computer or computers you want to collect user profiles from, multiple computer names are supported.")]
         [string[]]$ComputerName = "localhost"
     )
-
-    Write-Output "`n=== Starting to collect all profiles ===`n"
     
     $JobGetProfile = foreach ($_computer in $ComputerName) {
         Start-ThreadJob -Name $_computer -ThrottleLimit 50 -ScriptBlock {
-            if (Test-WSMan -ComputerName $Using:_computer -ErrorAction SilentlyContinue) {
-                Write-Output "`n=== All profiles on $($Using:_computer) ===`n"
-
+            $CheckComputer = $(try { Test-WSMan -ComputerName $Using:_computer -ErrorAction SilentlyContinue } catch { $null })
+            if ($null -ne $CheckComputer) {
                 try {
                     # Open CIM Session
                     $CimSession = $(try { New-CimSession -ComputerName $Using:_computer -ErrorAction SilentlyContinue } catch { $null })
-                    # Collect all user profiles
+
                     if ($null -ne $CimSession) {
+                        # Collect all user profiles
                         $GetUserData = Get-CimInstance -CimSession $CimSession -className Win32_UserProfile | Where-Object { $_.Special -eq $false } | Select-Object LocalPath, LastUseTime, Loaded | Sort-Object -Descending -Property LastUseTime
+                    
                         $UserProfileData = foreach ($_profile in $GetUserData) {
 
                             # Calculate how long it was the profile was used
@@ -82,25 +81,27 @@
                         }
                         else {
                             Write-Output "No user profiles found on $($Using:_computer)"
+                            continue
                         }
                     }
                     else {
-                        Write-Output "Could not connect to $($Using:_computer), make sure WinRM is enabled and the computer is on the network!"
-                        Continue
+                        Write-Output "Could not connect to $($Using:_computer) trough WinRM, please check the connection and try again"
+                        continue
                     }
                 }
                 catch {
                     Write-Output "$($PSItem.Exception.Message)"
+                    continue
                 }
             }
             else {
-                Write-Output "$($Using:_computer) are not connected to the network or it's trouble with WinRM"
+                Write-Output "Could not establish connection against $($Using:_computer)"
+                continue
             }
         }
     }
 
     $ReturnProfiles = Receive-Job $JobGetProfile -AutoRemoveJob -Wait
-    $CimSession | Remove-CimSession
     $ReturnProfiles
 }
 Function Remove-RSUserProfile {
@@ -171,9 +172,10 @@ Function Remove-RSUserProfile {
     )
 
     foreach ($_computer in $ComputerName) {
-        if (Test-WSMan -ComputerName $_computer -ErrorAction SilentlyContinue) {
+        $CheckComputer = $(try { Test-WSMan -ComputerName $_computer -ErrorAction SilentlyContinue } catch { $null })
+        if ($null -ne $CheckComputer) {
             # Open CIM Session
-            $CimSession = New-CimSession -ComputerName $_computer
+            $CimSession = $(try { New-CimSession -ComputerName $_computer -ErrorAction SilentlyContinue } catch { $null })
             # Collecting all user profiles on the computer
             $GetAllProfiles = Get-CimInstance -CimSession $CimSession -ClassName Win32_UserProfile | Where-Object { $_.Special -eq $false }
             if ($null -ne $GetAllProfiles) {
