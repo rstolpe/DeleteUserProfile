@@ -29,6 +29,7 @@
         .NOTES
         Author:         Robin Stolpe
         Mail:           robin@stolpe.io
+        Blog:           https://stolpe.io
         Twitter:        https://twitter.com/rstolpes
         Linkedin:       https://www.linkedin.com/in/rstolpe/
         GitHub:         https://github.com/rstolpe
@@ -37,7 +38,7 @@
 
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory = $false, HelpMessage = "Enter name of the computer or computers you want to collect user profiles from, multiple computername are supported.")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter name of the computer or computers you want to collect user profiles from, multiple computer names are supported.")]
         [string[]]$ComputerName = "localhost"
     )
 
@@ -106,7 +107,7 @@ Function Remove-RSUserProfile {
         Let you delete user profiles from a local computer or remote computer, you can also delete all of the user profiles. You can also exclude profiles.
         If the profile are loaded you can't delete it. The special Windows profiles are excluded
 
-        .PARAMETER Computername
+        .PARAMETER ComputerName
         The name of the remote computer you want to display all of the user profiles from. If you want to use it on a local computer you don't need to fill this one out.
 
         .PARAMETER Delete
@@ -128,15 +129,15 @@ Function Remove-RSUserProfile {
         # This will delete only user profile "User1" and "User2" from the local computer where you run the script from if the profile are not loaded.
 
         .EXAMPLE
-        Remove-RSUserProfile -Computername "Win11-test" -All
+        Remove-RSUserProfile -ComputerName "Win11-test" -All
         # This will delete all of the user profiles that are not special or loaded on the remote computer named "Win11-Test"
 
         .EXAMPLE
-        Remove-RSUserProfile -Computername "Win11-test" -Exclude "User1", "User2" -All
+        Remove-RSUserProfile -ComputerName "Win11-test" -Exclude "User1", "User2" -All
         # This will delete all of the user profiles except user profile User1 and User2 on the remote computer named "Win11-Test" if the profile are not loaded
 
         .EXAMPLE
-        Remove-RSUserProfile -Computername "Win11-test" -Delete "User1", "User2"
+        Remove-RSUserProfile -ComputerName "Win11-test" -Delete "User1", "User2"
         # This will delete only user profile "User1" and "User2" from the remote computer named "Win11-Test" if the profile are not loaded
 
         .LINK
@@ -145,6 +146,7 @@ Function Remove-RSUserProfile {
         .NOTES
         Author:         Robin Stolpe
         Mail:           robin@stolpe.io
+        Blog:           https://stolpe.io
         Twitter:        https://twitter.com/rstolpes
         Linkedin:       https://www.linkedin.com/in/rstolpe/
         GitHub:         https://github.com/rstolpe
@@ -153,8 +155,8 @@ Function Remove-RSUserProfile {
 
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory = $false, HelpMessage = "Enter computername on the computer that you to delete user profiles from, multiple names are supported")]
-        [string[]]$Computername = "localhost",
+        [Parameter(Mandatory = $false, HelpMessage = "Enter computer name on the computer that you to delete user profiles from, multiple names are supported")]
+        [string[]]$ComputerName = "localhost",
         [Parameter(Mandatory = $false, HelpMessage = "Enter the name of the user profiles that you want to delete, multiple names are supported")]
         [string[]]$Delete,
         [Parameter(Mandatory = $false, HelpMessage = "Use this switch if you want to delete all user profiles on the computer")]
@@ -163,7 +165,7 @@ Function Remove-RSUserProfile {
         [string[]]$Exclude
     )
 
-    foreach ($_computer in $Computername) {
+    foreach ($_computer in $ComputerName) {
         if (Test-WSMan -ComputerName $_computer -ErrorAction SilentlyContinue) {
             # Open CIM Session
             $CimSession = New-CimSession -ComputerName $_computer
