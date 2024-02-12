@@ -51,36 +51,42 @@
 
                 try {
                     # Open CIM Session
-                    $CimSession = New-CimSession -ComputerName $Using:_computer
+                    $CimSession = $(try { New-CimSession -ComputerName $Using:_computer -ErrorAction SilentlyContinue } catch { $null })
                     # Collect all user profiles
-                    $GetUserData = Get-CimInstance -CimSession $CimSession -className Win32_UserProfile | Where-Object { $_.Special -eq $false } | Select-Object LocalPath, LastUseTime, Loaded | Sort-Object -Descending -Property LastUseTime
-                    $UserProfileData = foreach ($_profile in $GetUserData) {
+                    if ($null -ne $CimSession) {
+                        $GetUserData = Get-CimInstance -CimSession $CimSession -className Win32_UserProfile | Where-Object { $_.Special -eq $false } | Select-Object LocalPath, LastUseTime, Loaded | Sort-Object -Descending -Property LastUseTime
+                        $UserProfileData = foreach ($_profile in $GetUserData) {
 
-                        # Calculate how long it was the profile was used
-                        if (-Not([string]::IsNullOrEmpty($_profile.LastUseTime))) {
-                            $NotUsed = NEW-TIMESPAN -Start $_profile.LastUseTime -End (Get-Date) | Select-Object days, hours, Minutes  | Foreach-Object {
-                                [PSCustomObject]@{
-                                    days    = if ($Null -eq $_.Days -or $_.Days -eq "0") { $Null } else { $_.Days }
-                                    hours   = if ($Null -eq $_.Hours -or $_.Hours -eq "0") { $Null } else { $_.Hours }
-                                    minutes = if ($Null -eq $_.Minutes -or $_.Minutes -eq "0") { $Null } else { $_.Minutes }
+                            # Calculate how long it was the profile was used
+                            if (-Not([string]::IsNullOrEmpty($_profile.LastUseTime))) {
+                                $NotUsed = NEW-TIMESPAN -Start $_profile.LastUseTime -End (Get-Date) | Select-Object days, hours, Minutes  | Foreach-Object {
+                                    [PSCustomObject]@{
+                                        days    = if ($Null -eq $_.Days -or $_.Days -eq "0") { $Null } else { $_.Days }
+                                        hours   = if ($Null -eq $_.Hours -or $_.Hours -eq "0") { $Null } else { $_.Hours }
+                                        minutes = if ($Null -eq $_.Minutes -or $_.Minutes -eq "0") { $Null } else { $_.Minutes }
+                                    }
                                 }
+                            }
+
+                            [PSCustomObject]@{
+                                ProfileUserName = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath.split('\')[-1] }
+                                ProfilePath     = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath }
+                                LastUsed        = if ($null -ne $_profile.LastUseTime) { ($_profile.LastUseTime -as [DateTime]).ToString("yyyy-MM-dd HH:mm") }
+                                ProfileLoaded   = if ($null -ne $_profile.Loaded) { $_profile.Loaded }
+                                NotUsed         = if (-Not([string]::IsNullOrEmpty($NotUsed))) { $NotUsed } else { "N/A" }
                             }
                         }
 
-                        [PSCustomObject]@{
-                            ProfileUserName = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath.split('\')[-1] }
-                            ProfilePath     = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath }
-                            LastUsed        = if ($null -ne $_profile.LastUseTime) { ($_profile.LastUseTime -as [DateTime]).ToString("yyyy-MM-dd HH:mm") }
-                            ProfileLoaded   = if ($null -ne $_profile.Loaded) { $_profile.Loaded }
-                            NotUsed         = if (-Not([string]::IsNullOrEmpty($NotUsed))) { $NotUsed } else { "N/A" }
+                        if ($null -ne $UserProfileData) {
+                            return $UserProfileData
+                        }
+                        else {
+                            Write-Output "No user profiles found on $($Using:_computer)"
                         }
                     }
-
-                    if ($null -ne $UserProfileData) {
-                        return $UserProfileData
-                    }
                     else {
-                        Write-Output "No user profiles found on $($Using:_computer)"
+                        Write-Output "Could not connect to $($Using:_computer), make sure WinRM is enabled and the computer is on the network!"
+                        Continue
                     }
                 }
                 catch {
@@ -97,7 +103,6 @@
     $CimSession | Remove-CimSession
     $ReturnProfiles
 }
-
 Function Remove-RSUserProfile {
     <#
         .SYNOPSIS
