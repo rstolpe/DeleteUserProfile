@@ -102,6 +102,7 @@
     }
 
     $ReturnProfiles = Receive-Job $JobGetProfile -AutoRemoveJob -Wait
+    $CimSession | Remove-CimSession
     $ReturnProfiles
 }
 Function Remove-RSUserProfile {
