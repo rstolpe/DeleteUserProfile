@@ -1,14 +1,16 @@
 ![GitHub](https://img.shields.io/github/license/rstolpe/DeleteUserProfile?style=plastic)  
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/rstolpe/DeleteUserProfile?sort=semver&style=plastic)  ![Last release](https://img.shields.io/github/release-date/rstolpe/DeleteUserProfile?style=plastic)
 ![GitHub last commit](https://img.shields.io/github/last-commit/rstolpe/DeleteUserProfile?style=plastic)  
-![PSGallery downloads](https://img.shields.io/powershellgallery/dt/DeleteUserProfile?style=plastic)
+![PSGallery downloads](https://img.shields.io/powershellgallery/dt/DeleteUserProfile?style=plastic)  
+  
+![Twitter](https://img.shields.io/twitter/follow/rstolpes)
 
 # DeleteUserProfile
 This module will let you show all of the user profiles that are saved on a local or remote computer, you can also delete one specific user profile or all of the profiles.  
 You can also return the user profiles from multiple computers at the same time.  
 The special windows profiles are excluded.  
   
-I have added the result from PSScriptAnalyzer in [test folder](https://github.com/rstolpe/DeleteUserProfile/tree/main/test) 
+I have also made a blog post of it at my [blog](https://stolpe.io/remove-user-profiles-from-windows/)
 
 ## This module will do the following
 - Return all of the user profiles from a remote or local computer
@@ -18,19 +20,16 @@ I have added the result from PSScriptAnalyzer in [test folder](https://github.co
 - You can exclude user profile to be deleted
 - If the user profile are loaded it will not get deleted
 - The special windows profiles are excluded
-  
-If you use this module on a remote computer you need to make sure that you have [WinRM](https://github.com/rstolpe/Guides/blob/main/Windows/WinRM_GPO.md) activated.
 
 # Links
-* [My PowerShell Collection](https://github.com/rstolpe/PSCollection)
-* [Webpage/Blog](https://www.stolpe.io)
+* [Blog](https://stolpe.io)
 * [Twitter](https://twitter.com/rstolpes)
 * [LinkedIn](https://www.linkedin.com/in/rstolpe/)
 * [PowerShell Gallery](https://www.powershellgallery.com/profiles/rstolpe)
 
-# Help
-Below I have specified things that I think will help people with this module.  
-You can also see the API for each function in the [help folder](https://github.com/rstolpe/DeleteUserProfile/tree/main/help)
+## Dependencies
+- WinRM must be activated on the computer (Guide for it coming soon)
+- Module also require that you have my service module installed, [rsServiceModule](https://github.com/rstolpe/rsServiceModule)
 
 ## Install
 Install for current user
@@ -45,7 +44,7 @@ Install-Module -Name DeleteUserProfile -Scope AllUsers -Force
 
 ## Example
 ### Get-RSUserProfile
-If you want to use this on a remote computer just add the parameter ```-ComputerName <COMPUTERNAME>``` in the commands below.  
+If you want to use this on a remote computer just add the parameter ```-ComputerName {COMPUTERNAME}``` in the commands below.  
   
 ```
 Get-RSUserProfile
@@ -66,16 +65,16 @@ This will return all of the user profiles saved on the remote computers named Wi
 If you want to use this on a remote computer just add the parameter ```-ComputerName <COMPUTERNAME>``` in the commands below.  
   
 ```
-Remove-RSUserProfile -DeleteAll
+Remove-RSUserProfile -All
 ```
 This will delete all of the user profiles from the localhost / computer your running the module from.
 
 ```
-Remove-RSUserProfile -Exclude "User1", "User2" -DeleteAll
+Remove-RSUserProfile -Exclude "User1", "User2" -All
 ```
 This will delete all of the user profiles except user profile User1 and User2 on the local computer
 
 ```
-Remove-RSUserProfile -Delete "User1", "User2"
+Remove-RSUserProfile -UserName "User1", "User2"
 ```
 This will delete only user profile "User1" and "User2" from the local computer where you run the script from.

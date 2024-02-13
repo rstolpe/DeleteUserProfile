@@ -11,16 +11,9 @@
         The name of the remote computer you want to display all of the user profiles from. If you want to use it on a local computer you don't need to fill this one out.
         You can add multiple computers like this: -ComputerName "Win11-Test", "Win10"
 
-        .PARAMETER Exclude
-        All of the usernames you write here will be excluded from the script and they will not show up, it's a array so you can add multiple users like this: -Exclude "User1", "User2"
-
         .EXAMPLE
         Get-RSUserProfile
         # This will return all of the user profiles saved on the local machine
-
-        .EXAMPLE
-        Get-RSUserProfile -Exclude "Frank", "rstolpe"
-        # This will return all of the user profiles saved on the local machine except user profiles that are named Frank and rstolpe
 
         .EXAMPLE
         Get-RSUserProfile -ComputerName "Win11-Test"
@@ -30,54 +23,87 @@
         Get-RSUserProfile -ComputerName "Win11-Test", "Win10"
         # This will return all of the user profiles saved on the remote computers named Win11-Test and Win10
 
-        .EXAMPLE
-        Get-RSUserProfile -ComputerName "Win11-Test" -Exclude "Frank", "rstolpe"
-        # This will return all of the user profiles saved on the remote computer "Win11-Test" except user profiles that are named Frank and rstolpe
-
         .LINK
         https://github.com/rstolpe/DeleteUserProfile/blob/main/README.md
 
         .NOTES
         Author:         Robin Stolpe
         Mail:           robin@stolpe.io
+        Blog:           https://stolpe.io
         Twitter:        https://twitter.com/rstolpes
         Linkedin:       https://www.linkedin.com/in/rstolpe/
-        Website/Blog:   https://stolpe.io
         GitHub:         https://github.com/rstolpe
         PSGallery:      https://www.powershellgallery.com/profiles/rstolpe
     #>
 
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory = $false, HelpMessage = "Enter computername on the computer that you to delete user profiles from, multiple names are supported")]
-        [string[]]$ComputerName = "localhost",
-        [Parameter(Mandatory = $false, HelpMessage = "Enter name of user profiles that you want to exclude, multiple names are supported")]
-        [string[]]$Exclude
+        [Parameter(Mandatory = $false, HelpMessage = "Enter name of the computer or computers you want to collect user profiles from, multiple computer names are supported.")]
+        [string[]]$ComputerName = "localhost"
     )
-    foreach ($Computer in $ComputerName) {
-        if (Test-WSMan -ComputerName $Computer -ErrorAction SilentlyContinue) {
-            Write-Output "`n== All profiles on $($Computer) ==`n"
-            try {
-                Get-CimInstance -ComputerName $Computer -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Foreach-Object {
-                    if (-Not ($_.LocalPath.split('\')[-1] -in $Exclude)) {
-                        [PSCustomObject]@{
-                            'UserName'               = $_.LocalPath.split('\')[-1]
-                            'Profile path'           = $_.LocalPath
-                            'Last used'              = ($_.LastUseTime -as [DateTime]).ToString("yyyy-MM-dd HH:mm")
-                            'Is the profile active?' = $_.Loaded
+    
+    $JobGetProfile = foreach ($_computer in $ComputerName) {
+        Start-ThreadJob -Name $_computer -ThrottleLimit 50 -ScriptBlock {
+            $CheckComputer = $(try { Test-WSMan -ComputerName $Using:_computer -ErrorAction SilentlyContinue } catch { $null })
+
+            if ($null -ne $CheckComputer) {
+                try {
+                    # Open CIM Session
+                    $CimSession = $(try { New-CimSession -ComputerName $Using:_computer -ErrorAction SilentlyContinue } catch { $null })
+
+                    if ($null -ne $CimSession) {
+                        # Collect all user profiles
+                        $GetUserData = Get-CimInstance -CimSession $CimSession -className Win32_UserProfile | Where-Object { $_.Special -eq $false } | Select-Object LocalPath, LastUseTime, Loaded | Sort-Object -Descending -Property LastUseTime
+                    
+                        $UserProfileData = foreach ($_profile in $GetUserData) {
+
+                            # Calculate how long it was the profile was used
+                            if (-Not([string]::IsNullOrEmpty($_profile.LastUseTime))) {
+                                $NotUsed = NEW-TIMESPAN -Start $_profile.LastUseTime -End (Get-Date) | Select-Object days, hours, Minutes  | Foreach-Object {
+                                    [PSCustomObject]@{
+                                        days    = if ($Null -eq $_.Days -or $_.Days -eq "0") { $Null } else { $_.Days }
+                                        hours   = if ($Null -eq $_.Hours -or $_.Hours -eq "0") { $Null } else { $_.Hours }
+                                        minutes = if ($Null -eq $_.Minutes -or $_.Minutes -eq "0") { $Null } else { $_.Minutes }
+                                    }
+                                }
+                            }
+
+                            [PSCustomObject]@{
+                                ProfileUserName = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath.split('\')[-1] }
+                                ProfilePath     = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath }
+                                LastUsed        = if ($null -ne $_profile.LastUseTime) { ($_profile.LastUseTime -as [DateTime]).ToString("yyyy-MM-dd HH:mm") }
+                                ProfileLoaded   = if ($null -ne $_profile.Loaded) { $_profile.Loaded }
+                                NotUsed         = if (-Not([string]::IsNullOrEmpty($NotUsed))) { $NotUsed } else { "N/A" }
+                            }
+                        }
+
+                        if ($null -ne $UserProfileData) {
+                            return $UserProfileData
+                        }
+                        else {
+                            Write-Output "No user profiles found on $($Using:_computer)"
+                            continue
                         }
                     }
+                    else {
+                        Write-Output "Could not connect to $($Using:_computer) trough WinRM, please check the connection and try again"
+                        continue
+                    }
+                }
+                catch {
+                    Write-Output "$($PSItem.Exception.Message)"
+                    continue
                 }
             }
-            catch {
-                Write-Error "$($PSItem.Exception)"
-                break
+            else {
+                Write-Output "Could not establish connection against $($Using:_computer)"
+                continue
             }
         }
-        else {
-            Write-Output "$($Computer) are not connected to the network or it's trouble with WinRM"
-        }
     }
+
+    $ReturnProfiles = Receive-Job $JobGetProfile -AutoRemoveJob -Wait
+    $ReturnProfiles
 }
 Function Remove-RSUserProfile {
     <#
@@ -91,35 +117,38 @@ Function Remove-RSUserProfile {
         .PARAMETER ComputerName
         The name of the remote computer you want to display all of the user profiles from. If you want to use it on a local computer you don't need to fill this one out.
 
-        .PARAMETER Delete
-        If you want to delete just one user profile your specify the username here.
+        .PARAMETER UserName
+        If you want to delete specific user profiles you can enter the username here.
 
-        .PARAMETER DeleteAll
-        If you want to delete all of the user profiles on the local or remote computer you can set this to $True or $False
+        .PARAMETER Exclude
+        This parameter only works if -All are used, here you can enter usernames that you want to exclude from the deletion.
+
+        .PARAMETER All
+        If you want to delete all of the user profiles on the local or remote computer you can use this switch
 
         .EXAMPLE
-        Remove-RSUserProfile -DeleteAll
-        # This will delete all of the user profiles from the local computer your running the script from.
+        Remove-RSUserProfile -All
+        # This will delete all of the user profiles from the local computer your running the script from. Beside special and loaded profiles
 
         .EXAMPLE
-        Remove-RSUserProfile -Exclude "User1", "User2" -DeleteAll
+        Remove-RSUserProfile -Exclude "User1", "User2" -All
         # This will delete all of the user profiles except user profile User1 and User2 on the local computer
 
         .EXAMPLE
-        Remove-RSUserProfile -Delete "User1", "User2"
-        # This will delete only user profile "User1" and "User2" from the local computer where you run the script from.
+        Remove-RSUserProfile -UserName "User1", "User2"
+        # This will delete only user profile "User1" and "User2" from the local computer where you run the script from if the profile are not loaded.
 
         .EXAMPLE
-        Remove-RSUserProfile -ComputerName "Win11-test" -DeleteAll
-        # This will delete all of the user profiles on the remote computer named "Win11-Test"
+        Remove-RSUserProfile -ComputerName "Win11-test" -All
+        # This will delete all of the user profiles that are not special or loaded on the remote computer named "Win11-Test"
 
         .EXAMPLE
-        Remove-RSUserProfile -ComputerName "Win11-test" -Exclude "User1", "User2" -DeleteAll
-        # This will delete all of the user profiles except user profile User1 and User2 on the remote computer named "Win11-Test"
+        Remove-RSUserProfile -ComputerName "Win11-test" -Exclude "User1", "User2" -All
+        # This will delete all of the user profiles except user profile User1 and User2 on the remote computer named "Win11-Test" if the profile are not loaded
 
         .EXAMPLE
-        Remove-RSUserProfile -ComputerName "Win11-test" -Delete "User1", "User2"
-        # This will delete only user profile "User1" and "User2" from the remote computer named "Win11-Test"
+        Remove-RSUserProfile -ComputerName "Win11-test" -UserName "User1", "User2"
+        # This will delete only user profile "User1" and "User2" from the remote computer named "Win11-Test" if the profile are not loaded
 
         .LINK
         https://github.com/rstolpe/DeleteUserProfile/blob/main/README.md
@@ -127,43 +156,53 @@ Function Remove-RSUserProfile {
         .NOTES
         Author:         Robin Stolpe
         Mail:           robin@stolpe.io
+        Blog:           https://stolpe.io
         Twitter:        https://twitter.com/rstolpes
         Linkedin:       https://www.linkedin.com/in/rstolpe/
-        Website/Blog:   https://stolpe.io
         GitHub:         https://github.com/rstolpe
         PSGallery:      https://www.powershellgallery.com/profiles/rstolpe
     #>
 
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory = $false, HelpMessage = "Enter computername on the computer that you to delete user profiles from, multiple names are supported")]
-        [string[]]$ComputerName = "localhost",
+        [Parameter(Mandatory = $false, HelpMessage = "Enter computer name for the computer you want to delete user profiles from")]
+        [string]$ComputerName = "localhost",
         [Parameter(Mandatory = $false, HelpMessage = "Enter the name of the user profiles that you want to delete, multiple names are supported")]
-        [string[]]$Delete,
-        [Parameter(Mandatory = $false, HelpMessage = "Use if you want to delete all user profiles")]
-        [switch]$DeleteAll = $false,
-        [Parameter(Mandatory = $false, HelpMessage = "Enter name of user profiles that you want to exclude, multiple names are supported")]
+        [string[]]$UserName,
+        [Parameter(Mandatory = $false, HelpMessage = "Use this switch if you want to delete all user profiles on the computer")]
+        [switch]$All = $false,
+        [Parameter(Mandatory = $false, HelpMessage = "Enter username of the user profiles that you want to exclude, multiple names are supported")]
         [string[]]$Exclude
     )
 
-    foreach ($Computer in $ComputerName) {
-        if (Test-WSMan -ComputerName $Computer -ErrorAction SilentlyContinue) {
-            $AllUserProfiles = Get-CimInstance -ComputerName $Computer -className Win32_UserProfile | Where-Object { (-Not ($_.Special)) } | Select-Object LocalPath, Loaded
-            if ($DeleteAll -eq $true) {
-                foreach ($Profile in $($AllUserProfiles)) {
-                    if ($Profile.LocalPath.split('\')[-1] -in $Exclude) {
-                        Write-Output "$($Profile.LocalPath.split('\')[-1]) are excluded so it wont be deleted, proceeding to next profile..."
-                    }
-                    else {
-                        if ($Profile.Loaded -eq "true") {
-                            Write-Warning "The user profile $($Profile.LocalPath.split('\')[-1]) is loaded, can't delete it so skipping it!"
-                            Continue
-                        }
-                        else {
+    if ($null -eq $UserName -and $All -eq $false) {
+        Write-Output "You must enter a username or use the switch -All to delete user profiles!"
+        break
+    }
+
+    $JobReturnMessage = [System.Collections.ArrayList]::new()
+    $CheckComputer = $(try { Test-WSMan -ComputerName $_computer -ErrorAction SilentlyContinue } catch { $null })
+
+    if ($null -ne $CheckComputer) {
+        # Open CIM Session
+        $CimSession = $(try { New-CimSession -ComputerName $_computer -ErrorAction SilentlyContinue } catch { $null })
+        # Collecting all user profiles on the computer
+        if ($null -ne $CimSession) {
+            $GetAllProfiles = Get-CimInstance -CimSession $CimSession -ClassName Win32_UserProfile | Where-Object { $_.Special -eq $false }
+
+            # Deleting all user profiles on the computer besides them that are special or loaded
+            if ($All -eq $true) {
+                $JobDelete = foreach ($_profile in $GetAllProfiles) {
+                    $UserNameFromPath = $_profile.LocalPath.split('\')[-1]
+                    $CheckProfile = Confirm-RSProfile -UserName $UserNameFromPath -ProfileData $GetAllProfiles -Exclude $Exclude
+
+                    if ($CheckProfile.ReturnCode -eq 0) {
+                        # Starting thread job to speed things up
+                        Start-ThreadJob -Name $UserNameFromPath -ThrottleLimit 50 -ScriptBlock {
                             try {
-                                Write-Output "Deleting user profile $($Profile.LocalPath.split('\')[-1])..."
-                                Get-CimInstance -ComputerName $Computer Win32_UserProfile | Where-Object { $_.LocalPath -eq $Profile.LocalPath } | Remove-CimInstance
-                                Write-Output "The user profile $($Profile.LocalPath.split('\')[-1]) are now deleted!"
+                                Write-Output "Deleting user profile $($Using:UserNameFromPath)..."
+                                $Using:_profile | Remove-CimInstance
+                                Write-Output "User profile $($Using:UserNameFromPath) are now deleted!"
                             }
                             catch {
                                 Write-Error "$($PSItem.Exception)"
@@ -171,35 +210,92 @@ Function Remove-RSUserProfile {
                             }
                         }
                     }
+                    else {
+                        [void]($JobReturnMessage.Add("$($CheckProfile.Message)"))
+                        continue
+                    }
                 }
             }
-            elseif ($DeleteAll -eq $false -and $null -ne $Delete) {
-                foreach ($user in $Delete) {
-                    if ("$env:SystemDrive\Users\$($user)" -in $AllUserProfiles.LocalPath) {
-                        if ($Profile.LocalPath.split('\')[-1] -in $Exclude) {
-                            Write-Output "$($Profile.LocalPath.split('\')[-1]) are excluded so it wont be deleted..."
-                        }
-                        else {
+            # if you don't want to delete all profiles but just one or more
+            elseif ($All -eq $false) {
+                $JobDelete = foreach ($_profile in $UserName) {
+                    $CheckProfile = Confirm-RSProfile -UserName $_profile -ProfileData $GetAllProfiles
+
+                    if ($CheckProfile.ReturnCode -eq 0) {
+                        $GetProfile = $GetAllProfiles | Where-Object { $_.LocalPath -like "*$($_profile)" }
+                        Start-ThreadJob -Name $_profile -ThrottleLimit 50 -ScriptBlock {
+                            Write-Output "Deleting user profile $($Using:_profile)..."
                             try {
-                                Write-Output "Deleting user profile $($user)..."
-                                Get-CimInstance -ComputerName $Computer Win32_UserProfile | Where-Object { $_.LocalPath -eq "$env:SystemDrive\Users\$($user)" } | Remove-CimInstance
-                                Write-Output "The user profile $($user) are now deleted!"
+                                $Using:GetProfile | Remove-CimInstance -ErrorAction SilentlyContinue
+                                Write-Output "The user profile $($Using:_profile) are now deleted!"
                             }
                             catch {
                                 Write-Error "$($PSItem.Exception)"
-                                Continue
+                                continue
                             }
                         }
                     }
                     else {
-                        Write-Warning "$($user) did not have any user profile on $($Computer)!"
-                        Continue
+                        [void]($JobReturnMessage.Add("$($CheckProfile.Message)"))
+                        continue
                     }
                 }
             }
+
+            if ($null -ne $JobDelete) {
+                $ReturnProfileJob = Receive-Job $JobDelete -AutoRemoveJob -Wait
+                $ReturnProfileJob
+                $JobReturnMessage
+            }
+            else {
+                $ReturnProfileJob
+                $JobReturnMessage
+            }
         }
         else {
-            Write-Output "$($Computer) are not connected to the network or it's trouble with WinRM"
+            Write-Output "Could not connect to $($_computer) trough WinRM, please check the connection and try again"
+            continue
         }
+    }
+    else {
+        Write-Output "Could not establish connection against $($_computer)"
+        continue
+    }
+}
+Function Confirm-RSProfile {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory = $true, HelpMessage = ".")]
+        [ValidateNotNullOrEmpty()]
+        [string]$UserName,
+        [Parameter(Mandatory = $true, HelpMessage = ".")]
+        [ValidateNotNullOrEmpty()]
+        $ProfileData,
+        [Parameter(Mandatory = $true, HelpMessage = ".")]
+        [ValidateNotNullOrEmpty()]
+        $Exclude
+    )
+
+    $CheckExists = $ProfileData | Where-Object { $_.LocalPath -like "*$($UserName)" }
+    if ($UserName -in $Exclude) {
+        $CheckExclude = $true
+    }
+    else {
+        $CheckExclude = $false
+    }
+
+    if ($null -ne $CheckExists -and $CheckExclude -eq $false) {
+        if ($CheckExists.Loaded -eq $true) {
+            Get-ReturnMessageTemplate -ReturnType Error -Message "User profile $($UserName) are loaded can't remove it"
+        }
+        else {
+            Get-ReturnMessageTemplate -ReturnType Success -Message "User profile $($UserName) exists and are not loaded"
+        }
+    }
+    elseif ($null -ne $CheckExists -and $CheckExclude -eq $true) {
+        Get-ReturnMessageTemplate -ReturnType Error -Message "User profile $($UserName) are excluded and will not be deleted"
+    }
+    else {
+        Get-ReturnMessageTemplate -ReturnType Error -Message "User profile $($UserName) does not exist on the computer"
     }
 }
