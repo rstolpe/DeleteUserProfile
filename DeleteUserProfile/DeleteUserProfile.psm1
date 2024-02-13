@@ -223,11 +223,12 @@ Function Remove-RSUserProfile {
                     $ReturnProfileJob
                 }
                 # if you don't want to delete all profiles but just one or more
-                elseif ($All -eq $false -and $null -ne $UserName) {
+                elseif ($All -eq $false) {
                     $JobDelete = foreach ($_profile in $UserName) {
                         $CheckProfile = Confirm-RSProfiles -UserName $_profile -ProfileData $GetAllProfiles
 
                         if ($CheckProfile.ReturnCode -eq 0) {
+                            $GetProfile = $GetAllProfiles | Where-Object { $_.LocalPath -like "*$($_profile)" }
                             Start-ThreadJob -Name $_profile -ThrottleLimit 50 -ScriptBlock {
                                 Write-Output "Deleting user profile $($Using:_profile)..."
                                 try {
