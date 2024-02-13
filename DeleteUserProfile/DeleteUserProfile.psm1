@@ -116,7 +116,7 @@ Function Remove-RSUserProfile {
         .PARAMETER ComputerName
         The name of the remote computer you want to display all of the user profiles from. If you want to use it on a local computer you don't need to fill this one out.
 
-        .PARAMETER Delete
+        .PARAMETER UserName
         If you want to delete specific user profiles you can enter the username here.
 
         .PARAMETER All
@@ -131,7 +131,7 @@ Function Remove-RSUserProfile {
         # This will delete all of the user profiles except user profile User1 and User2 on the local computer
 
         .EXAMPLE
-        Remove-RSUserProfile -Delete "User1", "User2"
+        Remove-RSUserProfile -UserName "User1", "User2"
         # This will delete only user profile "User1" and "User2" from the local computer where you run the script from if the profile are not loaded.
 
         .EXAMPLE
@@ -143,7 +143,7 @@ Function Remove-RSUserProfile {
         # This will delete all of the user profiles except user profile User1 and User2 on the remote computer named "Win11-Test" if the profile are not loaded
 
         .EXAMPLE
-        Remove-RSUserProfile -ComputerName "Win11-test" -Delete "User1", "User2"
+        Remove-RSUserProfile -ComputerName "Win11-test" -UserName "User1", "User2"
         # This will delete only user profile "User1" and "User2" from the remote computer named "Win11-Test" if the profile are not loaded
 
         .LINK
@@ -164,12 +164,17 @@ Function Remove-RSUserProfile {
         [Parameter(Mandatory = $false, HelpMessage = "Enter computer name on the computer that you to delete user profiles from, multiple names are supported")]
         [string[]]$ComputerName = "localhost",
         [Parameter(Mandatory = $false, HelpMessage = "Enter the name of the user profiles that you want to delete, multiple names are supported")]
-        [string[]]$Delete,
+        [string[]]$UserName,
         [Parameter(Mandatory = $false, HelpMessage = "Use this switch if you want to delete all user profiles on the computer")]
         [switch]$All = $false,
         [Parameter(Mandatory = $false, HelpMessage = "Enter username of the user profiles that you want to exclude, multiple names are supported")]
         [string[]]$Exclude
     )
+
+    if ($null -eq $UserName -and $All -eq $false) {
+        Write-Output "You must enter a username or use the switch -All to delete user profiles!"
+        break
+    }
 
     foreach ($_computer in $ComputerName) {
         $CheckComputer = $(try { Test-WSMan -ComputerName $_computer -ErrorAction SilentlyContinue } catch { $null })
@@ -179,6 +184,7 @@ Function Remove-RSUserProfile {
             # Collecting all user profiles on the computer
             if ($null -ne $CimSession) {
                 $GetAllProfiles = Get-CimInstance -CimSession $CimSession -ClassName Win32_UserProfile | Where-Object { $_.Special -eq $false }
+
                 if ($null -ne $GetAllProfiles) {
                     # Deleting all user profiles on the computer besides them that are special or loaded
                     if ($All -eq $true) {
@@ -215,8 +221,8 @@ Function Remove-RSUserProfile {
                         $ReturnProfileJob
                     }
                     # if you don't want to delete all profiles but just one or more
-                    elseif ($All -eq $false -and $null -ne $Delete) {
-                        $JobDelete = foreach ($_profile in $Delete) {
+                    elseif ($All -eq $false -and $null -ne $UserName) {
+                        $JobDelete = foreach ($_profile in $UserName) {
                             Start-ThreadJob -Name $_profile -ThrottleLimit 50 -ScriptBlock {
                                 # Adding it to it's own variable to be able to use it in the thread job
                                 $GetAllProfile = $Using:GetAllProfiles
@@ -228,7 +234,7 @@ Function Remove-RSUserProfile {
                                     else {
                                         Write-Output "Deleting user profile $($Using:_profile)..."
                                         try {
-                                            $GetAllProfile | Remove-CimInstance
+                                            $Using:_profile | Remove-CimInstance
                                             Write-Output "The user profile $($Using:_profile) are now deleted!"
                                         }
                                         catch {
@@ -245,6 +251,7 @@ Function Remove-RSUserProfile {
                         }
 
                         $ReturnProfileJob = Receive-Job $JobDelete -AutoRemoveJob -Wait
+                        $CimSession | Remove-CimSession
                         $ReturnProfileJob
                     }
                 }
