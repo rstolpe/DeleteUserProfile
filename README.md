@@ -9,6 +9,8 @@
 This module will let you show all of the user profiles that are saved on a local or remote computer, you can also delete one specific user profile or all of the profiles.  
 You can also return the user profiles from multiple computers at the same time.  
 The special windows profiles are excluded.  
+  
+I have also made a blog post of it at my [blog](https://stolpe.io/remove-user-profiles-from-windows/)
 
 ## This module will do the following
 - Return all of the user profiles from a remote or local computer
