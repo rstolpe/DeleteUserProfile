@@ -42,7 +42,11 @@
         [string[]]$ComputerName = "localhost"
     )
 
-    #Requires -Modules rsServiceModule
+    $CheckServiceModule = $(try { Get-InstalledModule -Name "rsServiceModule" -ErrorAction SilentlyContinue } catch { $null })
+    If ($null -eq $CheckServiceModule) {
+        Write-Error "You must have rsServiceModule installed to use this function"
+        break
+    }
     
     $JobGetProfile = foreach ($_computer in $ComputerName) {
         Start-ThreadJob -Name $_computer -ThrottleLimit 50 -ScriptBlock {
@@ -177,7 +181,11 @@ Function Remove-RSUserProfile {
         [string[]]$Exclude
     )
 
-    #Requires -Modules rsServiceModule
+    $CheckServiceModule = $(try { Get-InstalledModule -Name "rsServiceModule" -ErrorAction SilentlyContinue } catch { $null })
+    If ($null -eq $CheckServiceModule) {
+        Write-Error "You must have rsServiceModule installed to use this function"
+        break
+    }
 
     if ($null -eq $UserName -and $All -eq $false) {
         Write-Output "You must enter a username or use the switch -All to delete user profiles!"
