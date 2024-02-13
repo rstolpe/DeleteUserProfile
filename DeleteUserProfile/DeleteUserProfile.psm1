@@ -223,21 +223,23 @@ Function Remove-RSUserProfile {
                     elseif ($All -eq $false -and $null -ne $UserName) {
                         $JobDelete = foreach ($_profile in $UserName) {
                             $GetProfile = $GetAllProfiles | Where-Object { $_.LocalPath -like "*$($_profile)" }
+
+
                             if ($null -ne $GetProfile) {
                                 Start-ThreadJob -Name $_profile -ThrottleLimit 50 -ScriptBlock {
                                     Write-Output "Deleting user profile $($Using:_profile)..."
                                     try {
                                         $Using:GetProfile | Remove-CimInstance -ErrorAction SilentlyContinue
+                                        Write-Output "The user profile $($Using:_profile) are now deleted!"
                                     }
                                     catch {
                                         Write-Error "$($PSItem.Exception)"
                                         continue
                                     }
-                                    Write-Output "The user profile $($Using:_profile) are now deleted!"
                                 }
                             }
                             else {
-                                Write-Warning "$($_profile) did not exist on $($_computer)!"
+                                Write-Output "$($_profile) did not exist on $($_computer)!"
                                 continue
                             }
                         }
