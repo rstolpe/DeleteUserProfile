@@ -180,6 +180,8 @@ Function Remove-RSUserProfile {
         break
     }
 
+    $JobReturnMessage = [System.Collections.ArrayList]::new()
+
     foreach ($_computer in $ComputerName) {
         $CheckComputer = $(try { Test-WSMan -ComputerName $_computer -ErrorAction SilentlyContinue } catch { $null })
         if ($null -ne $CheckComputer) {
@@ -187,7 +189,7 @@ Function Remove-RSUserProfile {
             $CimSession = $(try { New-CimSession -ComputerName $_computer -ErrorAction SilentlyContinue } catch { $null })
             # Collecting all user profiles on the computer
             if ($null -ne $CimSession) {
-                $GetAllProfiles = Get-CimInstance -CimSession $CimSession -ClassName Win32_UserProfile | Where-Object { $_.Special -eq $false -and $_.Loaded -eq $false }
+                $GetAllProfiles = Get-CimInstance -CimSession $CimSession -ClassName Win32_UserProfile | Where-Object { $_.Special -eq $false }
 
                 # Deleting all user profiles on the computer besides them that are special or loaded
                 if ($All -eq $true) {
@@ -241,14 +243,20 @@ Function Remove-RSUserProfile {
                                 }
                             }
                         }
+                        else {
+                            [void]($JobReturnMessage.Add("$($CheckProfile.Message)"))
+                            continue
+                        }
                     }
-                    
+
                     if ($null -ne $JobDelete) {
                         $ReturnProfileJob = Receive-Job $JobDelete -AutoRemoveJob -Wait
                         $ReturnProfileJob
+                        $JobReturnMessage
                     }
                     else {
-                        $JobDelete 
+                        $ReturnProfileJob
+                        $JobReturnMessage
                     }
                 }
             }
@@ -274,19 +282,17 @@ Function Confirm-RSProfile {
         $ProfileData
     )
 
-    foreach ($_profile in $ProfileData) {
-        $CheckExists = $_profile | Where-Object { $_.LocalPath -like "*$($UserName)" }
+    $CheckExists = $ProfileData | Where-Object { $_.LocalPath -like "*$($UserName)" }
 
-        if ($null -ne $CheckExists) {
-            if ($CheckExists.Loaded -eq $true) {
-                Get-ReturnMessageTemplate -ReturnType Error -Message "User profile $($_profile) are loaded can't remove it"
-            }
-            else {
-                Get-ReturnMessageTemplate -ReturnType Success -Message "User profile $($_profile) exists and are not loaded"
-            }
+    if ($null -ne $CheckExists) {
+        if ($CheckExists.Loaded -eq $true) {
+            Get-ReturnMessageTemplate -ReturnType Error -Message "User profile $($UserName) are loaded can't remove it"
         }
         else {
-            Get-ReturnMessageTemplate -ReturnType Error -Message "User profile $($_profile) does not exist on the computer"
+            Get-ReturnMessageTemplate -ReturnType Success -Message "User profile $($UserName) exists and are not loaded"
         }
+    }
+    else {
+        Get-ReturnMessageTemplate -ReturnType Error -Message "User profile $($UserName) does not exist on the computer"
     }
 }
