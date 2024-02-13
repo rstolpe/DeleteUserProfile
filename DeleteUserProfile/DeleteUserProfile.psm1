@@ -102,7 +102,6 @@
     }
 
     $ReturnProfiles = Receive-Job $JobGetProfile -AutoRemoveJob -Wait
-    $CimSession | Remove-CimSession
     $ReturnProfiles
 }
 Function Remove-RSUserProfile {
@@ -218,7 +217,6 @@ Function Remove-RSUserProfile {
                         }
 
                         $ReturnProfileJob = Receive-Job $JobDelete -AutoRemoveJob -Wait
-                        $CimSession | Remove-CimSession
                         $ReturnProfileJob
                     }
                     # if you don't want to delete all profiles but just one or more
@@ -252,7 +250,6 @@ Function Remove-RSUserProfile {
                         }
 
                         $ReturnProfileJob = Receive-Job $JobDelete -AutoRemoveJob -Wait
-                        $CimSession | Remove-CimSession
                         $ReturnProfileJob
                     }
                 }
