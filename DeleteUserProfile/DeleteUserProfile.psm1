@@ -241,11 +241,8 @@ Function Remove-RSUserProfile {
                                 }
                             }
                         }
-                        else {
-                            $CheckProfile.Message
-                            continue
-                        }
                     }
+                    
                     if ($null -ne $JobDelete) {
                         $ReturnProfileJob = Receive-Job $JobDelete -AutoRemoveJob -Wait
                         $ReturnProfileJob
