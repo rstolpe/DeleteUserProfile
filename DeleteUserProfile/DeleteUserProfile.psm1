@@ -41,6 +41,8 @@
         [Parameter(Mandatory = $false, HelpMessage = "Enter name of the computer or computers you want to collect user profiles from, multiple computer names are supported.")]
         [string[]]$ComputerName = "localhost"
     )
+
+    #Requires -Modules rsServiceModule
     
     $JobGetProfile = foreach ($_computer in $ComputerName) {
         Start-ThreadJob -Name $_computer -ThrottleLimit 50 -ScriptBlock {
@@ -174,6 +176,8 @@ Function Remove-RSUserProfile {
         [Parameter(Mandatory = $false, HelpMessage = "Enter username of the user profiles that you want to exclude, multiple names are supported")]
         [string[]]$Exclude
     )
+
+    #Requires -Modules rsServiceModule
 
     if ($null -eq $UserName -and $All -eq $false) {
         Write-Output "You must enter a username or use the switch -All to delete user profiles!"
