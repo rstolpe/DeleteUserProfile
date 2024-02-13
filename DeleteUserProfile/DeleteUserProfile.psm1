@@ -187,7 +187,7 @@ Function Remove-RSUserProfile {
             $CimSession = $(try { New-CimSession -ComputerName $_computer -ErrorAction SilentlyContinue } catch { $null })
             # Collecting all user profiles on the computer
             if ($null -ne $CimSession) {
-                $GetAllProfiles = Get-CimInstance -CimSession $CimSession -ClassName Win32_UserProfile | Where-Object { $_.Special -eq $false }
+                $GetAllProfiles = Get-CimInstance -CimSession $CimSession -ClassName Win32_UserProfile | Where-Object { $_.Special -eq $false -and $_.Loaded -eq $false }
 
                 # Deleting all user profiles on the computer besides them that are special or loaded
                 if ($All -eq $true) {
@@ -225,7 +225,7 @@ Function Remove-RSUserProfile {
                 # if you don't want to delete all profiles but just one or more
                 elseif ($All -eq $false) {
                     $JobDelete = foreach ($_profile in $UserName) {
-                        $CheckProfile = Confirm-RSProfiles -UserName $_profile -ProfileData $GetAllProfiles
+                        $CheckProfile = Confirm-RSProfile -UserName $_profile -ProfileData $GetAllProfiles
 
                         if ($CheckProfile.ReturnCode -eq 0) {
                             $GetProfile = $GetAllProfiles | Where-Object { $_.LocalPath -like "*$($_profile)" }
@@ -266,7 +266,7 @@ Function Remove-RSUserProfile {
         }
     }
 }
-Function Confirm-RSProfiles {
+Function Confirm-RSProfile {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $true, HelpMessage = ".")]
