@@ -18,18 +18,12 @@ The special windows profiles are excluded.
 - You can exclude user profile to be deleted
 - If the user profile are loaded it will not get deleted
 - The special windows profiles are excluded
-  
-If you use this module on a remote computer you need to make sure that you have [WinRM](https://github.com/rstolpe/Guides/blob/main/Windows/WinRM_GPO.md) activated.
 
 # Links
-* [My PowerShell Collection](https://github.com/rstolpe/PSCollection)
+* [Blog](https://stolpe.io)
 * [Twitter](https://twitter.com/rstolpes)
 * [LinkedIn](https://www.linkedin.com/in/rstolpe/)
 * [PowerShell Gallery](https://www.powershellgallery.com/profiles/rstolpe)
-
-# Help
-Below I have specified things that I think will help people with this module.  
-You can also see the API for each function in the [help folder](https://github.com/rstolpe/DeleteUserProfile/tree/main/help)
 
 ## Install
 Install for current user
@@ -65,16 +59,16 @@ This will return all of the user profiles saved on the remote computers named Wi
 If you want to use this on a remote computer just add the parameter ```-ComputerName <COMPUTERNAME>``` in the commands below.  
   
 ```
-Remove-RSUserProfile -DeleteAll
+Remove-RSUserProfile -All
 ```
 This will delete all of the user profiles from the localhost / computer your running the module from.
 
 ```
-Remove-RSUserProfile -Exclude "User1", "User2" -DeleteAll
+Remove-RSUserProfile -Exclude "User1", "User2" -All
 ```
 This will delete all of the user profiles except user profile User1 and User2 on the local computer
 
 ```
-Remove-RSUserProfile -Delete "User1", "User2"
+Remove-RSUserProfile -UserName "User1", "User2"
 ```
 This will delete only user profile "User1" and "User2" from the local computer where you run the script from.
