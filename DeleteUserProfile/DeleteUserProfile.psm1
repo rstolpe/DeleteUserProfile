@@ -185,7 +185,7 @@ Function Remove-RSUserProfile {
                         $JobDelete = foreach ($_profile in $GetAllProfiles) {
                             $UserNameFromPath = $_profile.LocalPath.split('\')[-1]
 
-                            # Starting threadjob to speed things up
+                            # Starting thread job to speed things up
                             Start-ThreadJob -Name $UserNameFromPath -ThrottleLimit 50 -ScriptBlock {
                                 if ($Using:UserNameFromPath -in $Using:Exclude) {
                                     Write-Output "$($Using:UserNameFromPath) are excluded so it wont be deleted, proceeding to next profile..."
@@ -218,14 +218,17 @@ Function Remove-RSUserProfile {
                     elseif ($All -eq $false -and $null -ne $Delete) {
                         $JobDelete = foreach ($_profile in $Delete) {
                             Start-ThreadJob -Name $_profile -ThrottleLimit 50 -ScriptBlock {
-                                if ("$($env:SystemDrive)\Users\$($Using:_profile)" -in $Using:GetAllProfiles.LocalPath) {
+                                # Adding it to it's own variable to be able to use it in the thread job
+                                $GetAllProfile = $Using:GetAllProfiles
+
+                                if ("$($env:SystemDrive)\Users\$($Using:_profile)" -in $GetAllProfile.LocalPath) {
                                     if ($Using:_profile -in $Using:Exclude) {
                                         Write-Output "$($Using:_profile) are excluded so it wont be deleted..."
                                     }
                                     else {
+                                        Write-Output "Deleting user profile $($Using:_profile)..."
                                         try {
-                                            Write-Output "Deleting user profile $($Using:_profile)..."
-                                            $Using:GetAllProfiles | Remove-CimInstance
+                                            $GetAllProfile | Remove-CimInstance
                                             Write-Output "The user profile $($Using:_profile) are now deleted!"
                                         }
                                         catch {
@@ -242,7 +245,6 @@ Function Remove-RSUserProfile {
                         }
 
                         $ReturnProfileJob = Receive-Job $JobDelete -AutoRemoveJob -Wait
-                        $CimSession | Remove-CimSession
                         $ReturnProfileJob
                     }
                 }
