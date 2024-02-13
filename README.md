@@ -12,10 +12,6 @@ The special windows profiles are excluded.
   
 I have also made a blog post of it at my [blog](https://stolpe.io/remove-user-profiles-from-windows/)
 
-## Dependencies
-- WinRM must be activated on the computer (Guide for it coming soon)
-- Module also require that you have my service module installed, [rsServiceModule](https://github.com/rstolpe/rsServiceModule)
-
 ## This module will do the following
 - Return all of the user profiles from a remote or local computer
 - Delete one specific user profile or all of the user profiles from a local or remote computer
@@ -30,6 +26,10 @@ I have also made a blog post of it at my [blog](https://stolpe.io/remove-user-pr
 * [Twitter](https://twitter.com/rstolpes)
 * [LinkedIn](https://www.linkedin.com/in/rstolpe/)
 * [PowerShell Gallery](https://www.powershellgallery.com/profiles/rstolpe)
+
+## Dependencies
+- WinRM must be activated on the computer (Guide for it coming soon)
+- Module also require that you have my service module installed, [rsServiceModule](https://github.com/rstolpe/rsServiceModule)
 
 ## Install
 Install for current user
