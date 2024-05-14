@@ -62,7 +62,7 @@
                         $GetUserData = Get-CimInstance -CimSession $CimSession -className Win32_UserProfile | Where-Object { $_.Special -eq $false } | Select-Object LocalPath, LastUseTime, Loaded | Sort-Object -Descending -Property LastUseTime
                     
                         $UserProfileData = foreach ($_profile in $GetUserData) {
-                            $NotUsedFor = [System.Collections.ArrayList]::new()
+                            $NotUsedFor = [ordered]@{}
                             # Calculate how long it was the profile was used
                             if (-Not([string]::IsNullOrEmpty($_profile.LastUseTime))) {
                                 NEW-TIMESPAN -Start $_profile.LastUseTime -End (Get-Date) | Select-Object days, hours, Minutes  | Foreach-Object {
