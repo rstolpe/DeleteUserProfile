@@ -62,24 +62,29 @@
                         $GetUserData = Get-CimInstance -CimSession $CimSession -className Win32_UserProfile | Where-Object { $_.Special -eq $false } | Select-Object LocalPath, LastUseTime, Loaded | Sort-Object -Descending -Property LastUseTime
                     
                         $UserProfileData = foreach ($_profile in $GetUserData) {
-
+                            $NotUsedFor = [ordered]@{}
                             # Calculate how long it was the profile was used
                             if (-Not([string]::IsNullOrEmpty($_profile.LastUseTime))) {
-                                $NotUsed = NEW-TIMESPAN -Start $_profile.LastUseTime -End (Get-Date) | Select-Object days, hours, Minutes  | Foreach-Object {
-                                    [PSCustomObject]@{
-                                        days    = if ($Null -eq $_.Days -or $_.Days -eq "0") { $Null } else { $_.Days }
-                                        hours   = if ($Null -eq $_.Hours -or $_.Hours -eq "0") { $Null } else { $_.Hours }
-                                        minutes = if ($Null -eq $_.Minutes -or $_.Minutes -eq "0") { $Null } else { $_.Minutes }
+                                NEW-TIMESPAN -Start $_profile.LastUseTime -End (Get-Date) | Select-Object days, hours, Minutes  | Foreach-Object {
+                                    if ($Null -ne $_.Days -or $_.Days -gt "0") {
+                                        $NotUsedFor.Add("days", "$($_.Days)")
+                                    }
+                                    if ($Null -ne $_.Hours -or $_.Hours -gt "0") {
+                                        $NotUsedFor.Add("hours", "$($_.Hours)")
+                                    }
+                                    if ($Null -ne $_.Minutes -or $_.Minutes -gt "0") {
+                                        $NotUsedFor.Add("minutes", "$($_.Minutes)")
                                     }
                                 }
                             }
 
                             [PSCustomObject]@{
-                                ProfileUserName = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath.split('\')[-1] }
-                                ProfilePath     = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath }
-                                LastUsed        = if ($null -ne $_profile.LastUseTime) { ($_profile.LastUseTime -as [DateTime]).ToString("yyyy-MM-dd HH:mm") }
-                                ProfileLoaded   = if ($null -ne $_profile.Loaded) { $_profile.Loaded }
-                                NotUsed         = if (-Not([string]::IsNullOrEmpty($NotUsed))) { $NotUsed } else { "N/A" }
+                                Computer  = $Using:_computer
+                                UserName  = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath.split('\')[-1] }
+                                LocalPath = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath }
+                                LastUsed  = if ($null -ne $_profile.LastUseTime) { ($_profile.LastUseTime -as [DateTime]).ToString("yyyy-MM-dd HH:mm") }
+                                Loaded    = if ($null -ne $_profile.Loaded) { $_profile.Loaded }
+                                NotUsed   = if (-Not([string]::IsNullOrEmpty($NotUsedFor))) { $NotUsedFor } else { "N/A" }
                             }
                         }
 
@@ -92,7 +97,7 @@
                         }
                     }
                     else {
-                        Write-Output "Could not connect to $($Using:_computer) trough WinRM, please check the connection and try again"
+                        Write-Error "Could not connect to $($Using:_computer) trough WinRM, please check the connection and try again"
                         continue
                     }
                 }
@@ -102,14 +107,14 @@
                 }
             }
             else {
-                Write-Output "Could not establish connection against $($Using:_computer)"
+                Write-Error "Could not establish connection against $($Using:_computer)"
                 continue
             }
         }
     }
 
     $ReturnProfiles = Receive-Job $JobGetProfile -AutoRemoveJob -Wait
-    $ReturnProfiles
+    return $ReturnProfiles
 }
 Function Remove-RSUserProfile {
     <#
@@ -187,17 +192,17 @@ Function Remove-RSUserProfile {
         break
     }
 
-    if ($null -eq $UserName -and $All -eq $false) {
-        Write-Output "You must enter a username or use the switch -All to delete user profiles!"
+    <#if ($null -eq $UserName -and $All -eq $false) {
+        Write-Error "You must enter a username or use the switch -All to delete user profiles!"
         break
-    }
+    }#>
 
     $JobReturnMessage = [System.Collections.ArrayList]::new()
-    $CheckComputer = $(try { Test-WSMan -ComputerName $_computer -ErrorAction SilentlyContinue } catch { $null })
+    $CheckComputer = $(try { Test-WSMan -ComputerName $ComputerName -ErrorAction SilentlyContinue } catch { $null })
 
     if ($null -ne $CheckComputer) {
         # Open CIM Session
-        $CimSession = $(try { New-CimSession -ComputerName $_computer -ErrorAction SilentlyContinue } catch { $null })
+        $CimSession = $(try { New-CimSession -ComputerName $ComputerName -ErrorAction SilentlyContinue } catch { $null })
         # Collecting all user profiles on the computer
         if ($null -ne $CimSession) {
             $GetAllProfiles = Get-CimInstance -CimSession $CimSession -ClassName Win32_UserProfile | Where-Object { $_.Special -eq $false }
@@ -231,7 +236,7 @@ Function Remove-RSUserProfile {
             # if you don't want to delete all profiles but just one or more
             elseif ($All -eq $false) {
                 $JobDelete = foreach ($_profile in $UserName) {
-                    $CheckProfile = Confirm-RSProfile -UserName $_profile -ProfileData $GetAllProfiles
+                    $CheckProfile = Confirm-RSProfile -UserName $_profile -ProfileData $GetAllProfiles -Exclude $Exclude
 
                     if ($CheckProfile.ReturnCode -eq 0) {
                         $GetProfile = $GetAllProfiles | Where-Object { $_.LocalPath -like "*$($_profile)" }
@@ -265,27 +270,27 @@ Function Remove-RSUserProfile {
             }
         }
         else {
-            Write-Output "Could not connect to $($_computer) trough WinRM, please check the connection and try again"
+            Write-Error "Could not connect to $($_computer) trough WinRM, please check the connection and try again"
             continue
         }
     }
     else {
-        Write-Output "Could not establish connection against $($_computer)"
+        Write-Error "Could not establish connection against $($_computer)"
         continue
     }
 }
 Function Confirm-RSProfile {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory = $true, HelpMessage = ".")]
+        [Parameter(Mandatory = $true, HelpMessage = "Username of the user you want to verify")]
         [ValidateNotNullOrEmpty()]
         [string]$UserName,
         [Parameter(Mandatory = $true, HelpMessage = ".")]
         [ValidateNotNullOrEmpty()]
         $ProfileData,
-        [Parameter(Mandatory = $true, HelpMessage = ".")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the username you want to exclude from deletion")]
         [ValidateNotNullOrEmpty()]
-        $Exclude
+        [String[]]$Exclude
     )
 
     $CheckExists = $ProfileData | Where-Object { $_.LocalPath -like "*$($UserName)" }

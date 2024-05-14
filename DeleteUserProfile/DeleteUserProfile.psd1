@@ -36,7 +36,7 @@
     RootModule        = '.\DeleteUserProfile.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '2.0.1'
+    ModuleVersion     = '2.0.2'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -57,7 +57,7 @@
     Description       = 'This module will let you list or delete Windows user profile from both local and remote computers.'
 
     # Minimum version of the PowerShell engine required by this module
-    PowerShellVersion = '7.3'
+    PowerShellVersion = '7.4'
 
     # Name of the PowerShell host required by this module
     # PowerShellHostName = ''
@@ -134,7 +134,7 @@
             ReleaseNotes               = 'https://github.com/rstolpe/DeleteUserProfile/releases'
 
             # Prerelease string of this module
-            #Prerelease               = ''
+            Prerelease                 = 'beta'
 
             # Flag to indicate whether the module requires explicit user acceptance for install/update/save
             RequireLicenseAcceptance   = $false
