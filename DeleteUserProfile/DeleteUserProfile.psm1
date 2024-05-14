@@ -79,7 +79,7 @@
                             }
 
                             [PSCustomObject]@{
-                                Computer  = $_computer
+                                Computer  = $Using:_computer
                                 UserName  = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath.split('\')[-1] }
                                 LocalPath = if ($null -ne $_profile.LocalPath) { $_profile.LocalPath }
                                 LastUsed  = if ($null -ne $_profile.LastUseTime) { ($_profile.LastUseTime -as [DateTime]).ToString("yyyy-MM-dd HH:mm") }
