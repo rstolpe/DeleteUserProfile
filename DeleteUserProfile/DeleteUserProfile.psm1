@@ -109,7 +109,7 @@
     }
 
     $ReturnProfiles = Receive-Job $JobGetProfile -AutoRemoveJob -Wait
-    $ReturnProfiles
+    return $ReturnProfiles
 }
 Function Remove-RSUserProfile {
     <#
@@ -193,11 +193,11 @@ Function Remove-RSUserProfile {
     }
 
     $JobReturnMessage = [System.Collections.ArrayList]::new()
-    $CheckComputer = $(try { Test-WSMan -ComputerName $_computer -ErrorAction SilentlyContinue } catch { $null })
+    $CheckComputer = $(try { Test-WSMan -ComputerName $ComputerName -ErrorAction SilentlyContinue } catch { $null })
 
     if ($null -ne $CheckComputer) {
         # Open CIM Session
-        $CimSession = $(try { New-CimSession -ComputerName $_computer -ErrorAction SilentlyContinue } catch { $null })
+        $CimSession = $(try { New-CimSession -ComputerName $ComputerName -ErrorAction SilentlyContinue } catch { $null })
         # Collecting all user profiles on the computer
         if ($null -ne $CimSession) {
             $GetAllProfiles = Get-CimInstance -CimSession $CimSession -ClassName Win32_UserProfile | Where-Object { $_.Special -eq $false }
@@ -265,27 +265,27 @@ Function Remove-RSUserProfile {
             }
         }
         else {
-            Write-Output "Could not connect to $($_computer) trough WinRM, please check the connection and try again"
+            Write-Error "Could not connect to $($_computer) trough WinRM, please check the connection and try again"
             continue
         }
     }
     else {
-        Write-Output "Could not establish connection against $($_computer)"
+        Write-Error "Could not establish connection against $($_computer)"
         continue
     }
 }
 Function Confirm-RSProfile {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory = $true, HelpMessage = ".")]
+        [Parameter(Mandatory = $true, HelpMessage = "Username of the user you want to verify")]
         [ValidateNotNullOrEmpty()]
         [string]$UserName,
         [Parameter(Mandatory = $true, HelpMessage = ".")]
         [ValidateNotNullOrEmpty()]
         $ProfileData,
-        [Parameter(Mandatory = $true, HelpMessage = ".")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the username you want to exclude from deletion")]
         [ValidateNotNullOrEmpty()]
-        $Exclude
+        [String[]]$Exclude
     )
 
     $CheckExists = $ProfileData | Where-Object { $_.LocalPath -like "*$($UserName)" }
