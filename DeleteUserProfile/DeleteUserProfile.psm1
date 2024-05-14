@@ -193,7 +193,7 @@ Function Remove-RSUserProfile {
     }
 
     <#if ($null -eq $UserName -and $All -eq $false) {
-        Write-Output "You must enter a username or use the switch -All to delete user profiles!"
+        Write-Error "You must enter a username or use the switch -All to delete user profiles!"
         break
     }#>
 
